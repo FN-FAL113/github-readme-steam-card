@@ -88,7 +88,7 @@ function initSvg(htmlData, last_played_bg, current_game_bg) {
             <image href="${steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
             ` 
             }
-            <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
+            <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${currentGame ? `#a3cf06` : statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
             
             <image href="${htmlData.avatar}" x="20" y="20" width="100px" height="100px" />
             
