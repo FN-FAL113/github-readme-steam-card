@@ -98,6 +98,9 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
 Make sure to set project node version to ```14.x``` in ```Project Settings > General > Node.Js Version``` after your first deployment
+### To do
+- Use vercel/og to generate images instead of bundling chromium (will do this anytime sooner)
+- More styling/theme (soon)
 
 ## :sparkling_heart: Support the project
 
@@ -105,4 +108,5 @@ I'm devotee of open-source. Everything is free with all the effort and time I ga
 
 - Giving a proper credit by linking back this repo in your projects or github readme
 - Starring or sharing this project
-- I'm a college student with no source of income and no paypal yet, any of the following ways means a lot to me
+- Pr's are welcome and highly appreciated if you think you can make this project better :)
+- I'm a college student with little to no source of income and no paypal yet, any of the following ways above means a lot to me :)
