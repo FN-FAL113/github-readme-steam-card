@@ -33,14 +33,14 @@ use your steamid64 as the value for ```?steamid=``` (you may use [steam id finde
 </p>
 ```
 
-<p align="center">
+<p align="left">
   <img align="center" src="https://user-images.githubusercontent.com/88238718/198570658-015b70c2-ac8c-4750-aa00-93699d9a4fba.png" alt="" width="450px" height="150px" />
   <img align="center" src="https://user-images.githubusercontent.com/88238718/198569064-1a0d0b74-ce85-4234-9cae-9a2092f3e1da.png" alt="" width="450px" height="150px" />
 </p>
 
-<p align="center">
+<p align="left">
   <img align="center" src="https://user-images.githubusercontent.com/88238718/198571655-fff4b6f5-780e-4f37-b905-3b67a6a022b7.png" alt="" width="450px" height="150px" />
-  <img align="center" src="https://user-images.githubusercontent.com/88238718/198571646-9b004251-351c-4211-84fd-faee22b9770c.png" alt="" width="450px" height="150px" />
+  <img align="center" src="https://user-images.githubusercontent.com/88238718/198571646-9b004251-351c-4211-84fd-faee22b9770c.png" alt="" width="400px" height="150px" />
 </p>
 
 ## Available Options
@@ -50,11 +50,15 @@ use your steamid64 as the value for ```?steamid=``` (you may use [steam id finde
 
 ## Deploy your own Vercel instance
 
-Make sure to set project node version to 14.x in ```Project Settings > General > Node.Js Version```
+Create an account on vercel if you don't have yet
 
 Generate your steam api key by going to [Steam Web API Docs](https://steamcommunity.com/dev) and supply the environment variable ```STEAM_API_KEY``` with your own
 
+You may fork this project and deploy it to vercel or click the deploy button below which does most of the stuffs for you
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
+
+Make sure to set project node version to ```14.x``` in ```Project Settings > General > Node.Js Version``` after your first deployment
 
 ## :sparkling_heart: Support the project
 
