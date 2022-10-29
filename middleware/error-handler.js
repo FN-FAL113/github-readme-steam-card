@@ -47,7 +47,7 @@ const errorHandler = async (err, req, res, next) => {
           value: 800,
         },
         font: {
-            fontFiles: ['./public/MotivaSansRegular.woff.ttf'], // Load custom fonts.
+            fontFiles: ['./public/fonts/MotivaSansRegular.woff.ttf'], // Load custom fonts.
             loadSystemFonts: false, // It will be faster to disable loading system fonts.
             defaultFontFamily: 'Motiva Sans Regular', // Set default font family.
         },
