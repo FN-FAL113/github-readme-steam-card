@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const chromiumPuppeteer = require('../bin/chromium-puppeteer')
+const { Resvg } = require('@resvg/resvg-js')
 
 const errorHandler = async (err, req, res, next) => {
     let customError = {
@@ -30,27 +30,35 @@ const errorHandler = async (err, req, res, next) => {
             <text x="10" y="20" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="14" fill="white">Error ${customError.statusCode} encountered:</text>
             <text x="10" y="35" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="13" fill="orange">${customError.msg}</text>
             <text x="10" y="50" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="12" fill="yellow">Please verify your steam id</text>
-        </g>     
+        </g>  
+        <style>
+            svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        </style>   
     </svg>
-    <style>
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-    </style>`
+    `
 
-    const puppeteer = new chromiumPuppeteer()
-    await puppeteer.launchBrowser()
-    await puppeteer.newPage()
-    await puppeteer.setPageContent(svg)
-    await puppeteer.setPageViewPort(400, 150)
-    await puppeteer.waitForTimeout(1000)
-    await puppeteer.screenshot()
-    await puppeteer.closeBrowser()
+    const opts = {
+        fitTo: {
+          mode: 'width',
+          value: 800,
+        },
+        font: {
+            fontFiles: ['./public/fonts/MotivaSansRegular.woff.ttf'], // Load custom fonts.
+            loadSystemFonts: false, // It will be faster to disable loading system fonts.
+            defaultFontFamily: 'Motiva Sans Regular', // Set default font family.
+        },
+    }
+
+    const resvg = new Resvg(svg, opts)
+    const pngData = resvg.render()
+    const pngBuffer = pngData.asPng()
 
     res.set('Content-Type', 'image/png')
-    return res.status(customError.statusCode).send(Buffer.from(puppeteer.getImage(), 'base64'))
+    return res.status(customError.statusCode).send(Buffer.from(pngBuffer))
 }
 
 module.exports = errorHandler

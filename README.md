@@ -99,8 +99,8 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 
 Make sure to set project node version to ```14.x``` in ```Project Settings > General > Node.Js Version``` after your first deployment
 ### To do
-- Use vercel/og to generate images instead of bundling chromium (will do this anytime sooner)
 - More styling/theme (soon)
+- TBD
 
 ## :sparkling_heart: Support the project
 
