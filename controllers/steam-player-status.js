@@ -1,7 +1,7 @@
 
 const NotFoundError = require('../errors/not-found')
-const chromiumPuppeteer = require('../bin/chromium-puppeteer')
 const axios = require('axios');
+const { Resvg } = require('@resvg/resvg-js')
 
 const getStatus = async (req, res, next) => {
     const { steamid, last_played_bg, current_game_bg } = req.query;
@@ -15,7 +15,7 @@ const getStatus = async (req, res, next) => {
         const data = response.data.response.players[0]
         const response2 = await axios.get(url2)
         const data2 = response2.data.response.games
-
+      
         if (data) {
             const getStatus =
             data.personastate === 1
@@ -38,17 +38,45 @@ const getStatus = async (req, res, next) => {
                 lastGame: lastGame
             }
 
-            const puppeteer = new chromiumPuppeteer()
-            await puppeteer.launchBrowser()
-            await puppeteer.newPage()
-            await puppeteer.setPageContent(initSvg(htmlData, lastPlayedBg, currentGameBg))
-            await puppeteer.setPageViewPort(400, 150)
-            await puppeteer.waitForTimeout(1500)
-            await puppeteer.screenshot()
-            await puppeteer.closeBrowser()
+            const opts = {
+                fitTo: {
+                  mode: 'width',
+                  value: 800,
+                },
+                font: {
+                    fontFiles: ['./public/fonts/MotivaSansRegular.woff.ttf'], // Load custom fonts.
+                    loadSystemFonts: false, // It will be faster to disable loading system fonts.
+                    defaultFontFamily: 'Motiva Sans Regular', // Set default font family.
+                },
+            }
+
+            const resvg = new Resvg(initSvg(htmlData, lastPlayedBg, currentGameBg), opts)
+
+            const resolved = await Promise.all(
+                resvg.imagesToResolve().map(async (url) => {
+                  const img = await axios.get(url, {
+                    responseType: "arraybuffer"
+                  })
+                  const buffer = img.data 
+                  return {
+                    url,
+                    buffer: Buffer.from(buffer, 'binary'),
+                  }
+                }),
+            )
+
+            if (resolved.length > 0) {
+                for (const result of resolved) {
+                    const { url, buffer } = result
+                    resvg.resolveImage(url, buffer)
+                }
+            }
+
+            const pngData = resvg.render()
+            const pngBuffer = pngData.asPng()
         
             res.set('Content-Type', 'image/png');
-            res.status(200).send(Buffer.from(puppeteer.getImage(), 'base64'));          
+            res.status(200).send(Buffer.from(pngBuffer));          
         } else {
             throw new NotFoundError('No user not found, verify your steam id')
         }
@@ -95,14 +123,16 @@ function initSvg(htmlData, last_played_bg, current_game_bg) {
             <text x="130" y="32" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="16" fill="${statusColor}">${userName}</text>
             <text x="330" y="32" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="16" fill="${statusColor}">${status}</text>      
         </g>
-    </svg> 
-    <style>
+
+        <style>
         svg {
             position: absolute;
             top: 0;
             left: 0;
         }
-    </style>`
+        </style>
+    </svg> 
+   `
 }
 
 function getGameBackground(gameId) {
