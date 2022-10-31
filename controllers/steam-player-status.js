@@ -78,7 +78,7 @@ const getStatus = async (req, res, next) => {
             res.set('Content-Type', 'image/png');
             res.status(200).send(Buffer.from(pngBuffer));          
         } else {
-            throw new NotFoundError('No user not found, verify your steam id')
+            throw new NotFoundError('User not found! Verify your steam id')
         }
     } catch (error) {
        next(error)
