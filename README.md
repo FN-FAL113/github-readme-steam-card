@@ -97,7 +97,6 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
-Make sure to set project node version to ```14.x``` in ```Project Settings > General > Node.Js Version``` after your first deployment
 ### To do
 - More styling/theme (soon)
 - TBD
