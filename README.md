@@ -1,6 +1,6 @@
 <p align="center">
   <h2 align="center">Github Readme Steam Status</h2>
-  <p align="center">:video_game: A dynamically generated steam status for your github readme</p>
+  <p align="center">:video_game: A dynamically generated steam status for your github readme inspired by github readme stats</p>
 </p>
 </p>
 <p align="center">
