@@ -28,9 +28,7 @@ Add the following markdown to your github readme
 use your steamid64 as the value for ```?steamid=``` (you may use [steam id finder](https://www.steamidfinder.com/)), you may adjust the width and height of the card if through the markdown you prefer (default card res: 800x300)
 
 ```md
-<p align="center">
-  <img align="center" src="https://github-readme-steam-status.vercel.app/?steamid=<SteamID64 here>" alt="" width="450px" height="150px" />
-</p>
+<img src="https://github-readme-steam-status.vercel.app/?steamid=<SteamID64 here>" alt="" width="450px" height="150px" />
 ```
 
 <p align="center">
