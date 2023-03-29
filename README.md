@@ -103,7 +103,5 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 
 I'm devotee of open-source. Everything is free with all the effort and time I gave for this and other projects. However there are some ways you can show your support:
 
-- Giving a proper credit by linking back this repo in your projects or github readme
 - Starring or sharing this project
 - Pr's are welcome and highly appreciated if you think you can make this project better :)
-- I'm a college student with little to no source of income and no paypal yet, any of the following ways above means a lot to me :)
