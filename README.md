@@ -1,5 +1,5 @@
 <p align="center">
-  <h2 align="center">Github Readme Steam Status</h2>
+  <h1 align="center">Github Readme Steam Status</h1>
   <p align="center">:video_game: A dynamically generated steam status for your github readme inspired by github readme stats</p>
 </p>
 </p>
@@ -21,7 +21,7 @@
   </a> 
 </p>
 
-# Steam Status Card
+## Usage
 
 Add the following markdown to your github readme
 
