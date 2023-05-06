@@ -35,12 +35,16 @@ const getStatus = async (req, res, next) => {
             
             const currentGame = !userData.gameextrainfo ? null : [userData.gameextrainfo, userData.gameid];
             const lastGame = !gameData ? null : [gameData[0].name, gameData[0].appid, gameData[0].playtime_forever];
-            
+            const avatar = await axios.get(userData.avatarfull, {
+                responseType: "text",
+                responseEncoding: 'base64'
+            })
+
             const fetchedData = {
                 name: userData.personaname,
                 id: userData.steamid,
-                avatar: userData.avatarfull,
                 status: user_status,
+                avatar: avatar.data,
                 currentGame: currentGame,
                 lastGame: lastGame
             }
@@ -86,22 +90,22 @@ function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG) {
                 <rect width="400" height="150" fill="#1b2838" />    
                 
                 ${currentGameName ? `
-                <text x="130" y="108" font-size="10" fill="#a3cf06">In-Game</text>
-                <text x="130" y="122" font-size="12" fill="#a3cf06">${currentGameName}</text>
-                <image href="${currentGameBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
+                    <text x="130" y="108" font-size="10" fill="#a3cf06">In-Game</text>
+                    <text x="130" y="122" font-size="12" fill="#a3cf06">${currentGameName}</text>
+                    <image href="${currentGameBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
                 ` : 
                 lastGameName ? `
-                <text x="130" y="96" font-size="10" fill="#898989">Last Played</text>
-                <text x="130" y="110" font-size="12" fill="#898989">${lastGameName}</text>
-                <text x="130" y="122" font-size="10" fill="#898989">${parseInt(fetchedData.lastGame[2] / 60)} hrs</text>
-                <image href="${lastPlayedBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
-                ` : `
-                <image href="${steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
+                    <text x="130" y="96" font-size="10" fill="#898989">Last Played</text>
+                    <text x="130" y="110" font-size="12" fill="#898989">${lastGameName}</text>
+                    <text x="130" y="122" font-size="10" fill="#898989">${parseInt(fetchedData.lastGame[2] / 60)} hrs</text>
+                    <image href="${lastPlayedBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
+                    ` : `
+                    <image href="${steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
                 ` 
                 }
-                <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${currentGameName ? `#a3cf06` : statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
                 
-                <image href="${fetchedData.avatar}" x="20" y="20" width="100px" height="100px" />
+                <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${currentGameName ? `#a3cf06` : statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
+                <image href="data:image/jpeg;base64,${fetchedData.avatar}" x="20" y="20" width="100px" height="100px" />
                 
                 <text x="130" y="32" font-size="16" fill="${statusColor}">${userName}</text>
                 <text x="330" y="32" font-size="16" fill="${statusColor}">${status}</text>      
