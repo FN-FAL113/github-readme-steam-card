@@ -57,7 +57,6 @@ const getStatus = async (req, res, next) => {
             throw new NotFoundError('No user not found, verify your steam id')
         }
     } catch (error) {
-        console.log(error)
        next(error)
     }
 }
@@ -72,16 +71,16 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
     const currentGameName = fetchedData.currentGame ? fetchedData.currentGame[0].length > 32 ? fetchedData.currentGame[0].slice(0, 28) + '...' : fetchedData.currentGame[0] : null
     const lastGameName = fetchedData.lastGame ? fetchedData.lastGame[0].length > 32 ? fetchedData.lastGame[0].slice(0, 28) + '...' : fetchedData.lastGame[0] : null
     
-    // should display current game background
+    // should display current game background else default to steam logo if data are not available
     let currentGameBg = fetchedData.steamLogo
-    if(displayCurrentGameBG) {
-        currentGameBg = currentGameName && await getBase64Image(setGetGameBGUrl(fetchedData?.currentGame?.[1]))
+    if(currentGameName && displayCurrentGameBG) {
+        currentGameBg = await getBase64Image(setGetGameBGUrl(fetchedData?.currentGame?.[1]))
     }
      
-    // should display last played game background
+    // should display last played game background else default to steam logo if data are not available
     let lastPlayedBg = fetchedData.steamLogo
-    if(displayLastPlayedGameBG) {
-        lastPlayedBg = lastGameName && await getBase64Image(setGetGameBGUrl(fetchedData?.lastGame?.[1]))
+    if(lastGameName && displayLastPlayedGameBG) {
+        lastPlayedBg = await getBase64Image(setGetGameBGUrl(fetchedData?.lastGame?.[1]))
     }
 
     return `
@@ -100,8 +99,8 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                     <text x="130" y="110" font-size="12" fill="#898989">${lastGameName}</text>
                     <text x="130" y="122" font-size="10" fill="#898989">${parseInt(fetchedData.lastGame[2] / 60)} hrs</text>
                     <image href="data:image/jpeg;base64,${lastPlayedBg}" x="225" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.325" />
-                    ` : `
-                    <image href="href="data:image/png;base64,${fetchedData.steamLogo}"" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.325" />
+                ` : `
+                    <image href="data:image/png;base64,${fetchedData.steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.325" />
                 ` 
                 }
                 
