@@ -73,14 +73,16 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
     const lastGameName = fetchedData.lastGame ? fetchedData.lastGame[0].length > 32 ? fetchedData.lastGame[0].slice(0, 28) + '...' : fetchedData.lastGame[0] : null
     
     // should display current game background
+    const currentGameBase64Image = await getBase64Image(setGetGameBGUrl(fetchedData.currentGame[1]))
     const currentGameBg = displayCurrentGameBG ? 
-                                    currentGameName ? await getBase64Image(setGetGameBGUrl(fetchedData.currentGame[1])) : fetchedData.steamLogo 
+                                    currentGameName ? currentGameBase64Image : fetchedData.steamLogo 
                                 : 
                                     steamLogo
      
     // should display last played game background
+    const lastPlayedBase64Image = await getBase64Image(setGetGameBGUrl(fetchedData.lastGame[1]))
     const lastPlayedBg = displayLastPlayedGameBG ? 
-                                    lastGameName ? await getBase64Image(setGetGameBGUrl(fetchedData.lastGame[1])) : fetchedData.steamLogo 
+                                    lastGameName ? lastPlayedBase64Image : fetchedData.steamLogo 
                                 : 
                                     fetchedData.steamLogo
 
