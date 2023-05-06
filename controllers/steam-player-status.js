@@ -28,7 +28,7 @@ const getStatus = async (req, res, next) => {
                 user_status = ['Online', '#57cbde']
             } else if (userData.personastate === 2) {
                 user_status = 'Busy'
-            } else if (userData.personastate === 2) {
+            } else if (userData.personastate === 3) {
                 user_status = ['Away', '#57cbde']
             } else {
                 user_status = ['Offline', '#898989']
@@ -67,24 +67,22 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
     const status = fetchedData.status[0]
     const statusColor = fetchedData.status[1]
     
-    // formatted names
+    // formatted names, defaults to null if no data
     const userName = fetchedData.name.length > 20 ? fetchedData.name.slice(0, 16) + '...' : fetchedData.name
     const currentGameName = fetchedData.currentGame ? fetchedData.currentGame[0].length > 32 ? fetchedData.currentGame[0].slice(0, 28) + '...' : fetchedData.currentGame[0] : null
     const lastGameName = fetchedData.lastGame ? fetchedData.lastGame[0].length > 32 ? fetchedData.lastGame[0].slice(0, 28) + '...' : fetchedData.lastGame[0] : null
     
     // should display current game background
-    const currentGameBase64Image = await getBase64Image(setGetGameBGUrl(fetchedData.currentGame[1]))
-    const currentGameBg = displayCurrentGameBG ? 
-                                    currentGameName ? currentGameBase64Image : fetchedData.steamLogo 
-                                : 
-                                    steamLogo
+    let currentGameBg = fetchedData.steamLogo
+    if(displayCurrentGameBG) {
+        currentGameBg = currentGameName && await getBase64Image(setGetGameBGUrl(fetchedData?.currentGame?.[1]))
+    }
      
     // should display last played game background
-    const lastPlayedBase64Image = await getBase64Image(setGetGameBGUrl(fetchedData.lastGame[1]))
-    const lastPlayedBg = displayLastPlayedGameBG ? 
-                                    lastGameName ? lastPlayedBase64Image : fetchedData.steamLogo 
-                                : 
-                                    fetchedData.steamLogo
+    let lastPlayedBg = fetchedData.steamLogo
+    if(displayLastPlayedGameBG) {
+        lastPlayedBg = lastGameName && await getBase64Image(setGetGameBGUrl(fetchedData?.lastGame?.[1]))
+    }
 
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="150">
