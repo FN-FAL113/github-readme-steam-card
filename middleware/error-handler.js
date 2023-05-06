@@ -1,5 +1,4 @@
 const { StatusCodes } = require('http-status-codes')
-const { Resvg } = require('@resvg/resvg-js')
 
 const errorHandler = async (err, req, res, next) => {
     let customError = {
@@ -27,38 +26,18 @@ const errorHandler = async (err, req, res, next) => {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="150"> 
         <g>
             <rect x="0" y="0" width="400" height="150" fill="#1b2838" /> 
-            <text x="10" y="20" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="14" fill="white">Error ${customError.statusCode} encountered:</text>
-            <text x="10" y="35" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="13" fill="orange">${customError.msg}</text>
-            <text x="10" y="50" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="12" fill="yellow">Please verify your steam id</text>
+            <text x="10" y="20" font-size="14" fill="white">Error ${customError.statusCode} encountered:</text>
+            <text x="10" y="35" font-size="13" fill="orange">${customError.msg}</text>
+            <text x="10" y="50" font-size="12" fill="yellow">Please verify your steam id</text>
         </g>  
-        <style>
-            svg {
-                position: absolute;
-                top: 0;
-                left: 0;
-            }
-        </style>   
+        <style type="text/css">
+            text { font-family: Arial, Helvetica, Verdana, sans-serif; }
+        </style>
     </svg>
     `
 
-    const opts = {
-        fitTo: {
-          mode: 'width',
-          value: 800,
-        },
-        font: {
-            fontFiles: ['./public/fonts/MotivaSansRegular.woff.ttf'], // Load custom fonts.
-            loadSystemFonts: false, // It will be faster to disable loading system fonts.
-            defaultFontFamily: 'Motiva Sans Regular', // Set default font family.
-        },
-    }
-
-    const resvg = new Resvg(svg, opts)
-    const pngData = resvg.render()
-    const pngBuffer = pngData.asPng()
-
-    res.set('Content-Type', 'image/png')
-    return res.status(customError.statusCode).send(Buffer.from(pngBuffer))
+    res.set('Content-Type', 'image/svg+xml')
+    return res.status(customError.statusCode).send(svg)
 }
 
 module.exports = errorHandler
