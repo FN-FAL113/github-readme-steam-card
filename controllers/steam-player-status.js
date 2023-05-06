@@ -1,141 +1,120 @@
 
 const NotFoundError = require('../errors/not-found')
 const axios = require('axios');
-const { Resvg } = require('@resvg/resvg-js')
 
 const getStatus = async (req, res, next) => {
     const { steamid, last_played_bg, current_game_bg } = req.query;
-    const lastPlayedBg = last_played_bg ? last_played_bg.toLowerCase() === 'true' : true
-    const currentGameBg = current_game_bg ? current_game_bg.toLowerCase() === 'true' : true
-    const url = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
-    const url2 = `http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&count=3`
+    
+    // conditionals for displaying current/last game background
+    const displayLastPlayedGameBG = last_played_bg != undefined ? last_played_bg === "true" : true 
+    const displayCurrentGameBG = current_game_bg != undefined ? current_game_bg === "true" : true
+    
+    // get user data
+    const userUrlResource = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
+    // get user game data
+    const gameUrlResource = `http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&count=3`
 
     try {
-        const response = await axios.get(url)
-        const data = response.data.response.players[0]
-        const response2 = await axios.get(url2)
-        const data2 = response2.data.response.games
+        const response = await axios.get(userUrlResource)
+        const userData = response.data.response.players[0]
+        const response2 = await axios.get(gameUrlResource)
+        const gameData = response2.data.response.games
       
-        if (data) {
-            const getStatus =
-            data.personastate === 1
-                ? ['Online', '#57cbde']
-                : data.personastate === 2
-                ? 'Busy'
-                : data.personastate === 3
-                ? ['Away', '#57cbde']
-                : ['Offline', '#898989'];
+        if (userData) {
+            let user_status = null;
             
-            const currentGame = !data.gameextrainfo ? null : [data.gameextrainfo, data.gameid];
-            const lastGame = !data2 ? null : [data2[0].name, data2[0].appid, data2[0].playtime_forever];
+            if(userData.personastate === 1) {
+                user_status = ['Online', '#57cbde']
+            } else if (userData.personastate === 2) {
+                user_status = 'Busy'
+            } else if (userData.personastate === 2) {
+                user_status = ['Away', '#57cbde']
+            } else {
+                user_status = ['Offline', '#898989']
+            }
             
-            const htmlData = {
-                name: data.personaname,
-                id: data.steamid,
-                avatar: data.avatarfull,
-                status: getStatus,
+            const currentGame = !userData.gameextrainfo ? null : [userData.gameextrainfo, userData.gameid];
+            const lastGame = !gameData ? null : [gameData[0].name, gameData[0].appid, gameData[0].playtime_forever];
+            
+            const fetchedData = {
+                name: userData.personaname,
+                id: userData.steamid,
+                avatar: userData.avatarfull,
+                status: user_status,
                 currentGame: currentGame,
                 lastGame: lastGame
             }
-
-            const opts = {
-                fitTo: {
-                  mode: 'width',
-                  value: 800,
-                },
-                font: {
-                    fontFiles: ['./public/fonts/MotivaSansRegular.woff.ttf'], // Load custom fonts.
-                    loadSystemFonts: false, // It will be faster to disable loading system fonts.
-                    defaultFontFamily: 'Motiva Sans Regular', // Set default font family.
-                },
-            }
-
-            const resvg = new Resvg(initSvg(htmlData, lastPlayedBg, currentGameBg), opts)
-
-            const resolved = await Promise.all(
-                resvg.imagesToResolve().map(async (url) => {
-                  const img = await axios.get(url, {
-                    responseType: "arraybuffer"
-                  })
-                  const buffer = img.data 
-                  return {
-                    url,
-                    buffer: Buffer.from(buffer, 'binary'),
-                  }
-                }),
-            )
-
-            if (resolved.length > 0) {
-                for (const result of resolved) {
-                    const { url, buffer } = result
-                    resvg.resolveImage(url, buffer)
-                }
-            }
-
-            const pngData = resvg.render()
-            const pngBuffer = pngData.asPng()
         
-            res.set('Content-Type', 'image/png');
-            res.status(200).send(Buffer.from(pngBuffer));          
+            res.set('Content-Type', 'image/svg+xml');
+            res.status(200).send(initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG));          
         } else {
-            throw new NotFoundError('User not found! Verify your steam id')
+            throw new NotFoundError('No user not found, verify your steam id')
         }
     } catch (error) {
+        console.log(error)
        next(error)
     }
 }
 
-function initSvg(htmlData, last_played_bg, current_game_bg) {
-    const status = htmlData.status[0]
-    const statusColor = htmlData.status[1]
+function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG) {
     const steamLogo = "https://www.pngmart.com/files/22/Steam-Logo-PNG-Transparent.png"
+
+    // user status (name and font color)
+    const status = fetchedData.status[0]
+    const statusColor = fetchedData.status[1]
     
-    const userName = htmlData.name.length > 20 ? htmlData.name.slice(0, 20) + '...' : htmlData.name
-    const currentGame = htmlData.currentGame ? htmlData.currentGame[0].length > 32 ? htmlData.currentGame[0].slice(0, 32) + '...' : htmlData.currentGame[0] : null
-    const lastGame = htmlData.lastGame ? htmlData.lastGame[0].length > 32 ? htmlData.lastGame[0].slice(0, 32) + '...' : htmlData.lastGame[0] : null
+    // names
+    const userName = fetchedData.name.length > 20 ? fetchedData.name.slice(0, 20) + '...' : fetchedData.name
+    const currentGameName = fetchedData.currentGame ? fetchedData.currentGame[0].length > 32 ? fetchedData.currentGame[0].slice(0, 32) + '...' : fetchedData.currentGame[0] : null
+    const lastGameName = fetchedData.lastGame ? fetchedData.lastGame[0].length > 32 ? fetchedData.lastGame[0].slice(0, 32) + '...' : fetchedData.lastGame[0] : null
     
-    const currentGameBg = current_game_bg ? currentGame ? getGameBackground(htmlData.currentGame[1]) : steamLogo : steamLogo
-    const lastPlayedBg = last_played_bg ? lastGame ? getGameBackground(htmlData.lastGame[1]) : steamLogo : steamLogo
+    // should display current game background
+    const currentGameBg = displayCurrentGameBG ? 
+                                    currentGameName ? getGameBackgroundImage(fetchedData.currentGame[1]) : steamLogo 
+                                : 
+                                    steamLogo
+     
+    // should display last played game background
+    const lastPlayedBg = displayLastPlayedGameBG ? 
+                                    lastGameName ? getGameBackgroundImage(fetchedData.lastGame[1]) : steamLogo 
+                                : 
+                                    steamLogo
 
     return `
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="150">
-        <g>
-            <rect width="400" height="150" fill="#1b2838" />    
-            
-            ${currentGame ? `
-            <text x="130" y="108" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="10" fill="#a3cf06">In-Game</text>
-            <text x="130" y="122" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="12" fill="#a3cf06">${currentGame}</text>
-            <image href="${currentGameBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
-            ` : 
-            lastGame ? `
-            <text x="130" y="96" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="10" fill="#898989">Last Played</text>
-            <text x="130" y="110" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="12" fill="#898989">${lastGame}</text>
-            <text x="130" y="122" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="10" fill="#898989">${parseInt(htmlData.lastGame[2] / 60)} hrs</text>
-            <image href="${lastPlayedBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
-            ` : `
-            <image href="${steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
-            ` 
-            }
-            <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${currentGame ? `#a3cf06` : statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
-            
-            <image href="${htmlData.avatar}" x="20" y="20" width="100px" height="100px" />
-            
-            <text x="130" y="32" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="16" fill="${statusColor}">${userName}</text>
-            <text x="330" y="32" font-family="Motiva Sans,Arial,Helvetica,sans-serif" font-size="16" fill="${statusColor}">${status}</text>      
-        </g>
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="150">
+            <g>
+                <rect width="400" height="150" fill="#1b2838" />    
+                
+                ${currentGameName ? `
+                <text x="130" y="108" font-size="10" fill="#a3cf06">In-Game</text>
+                <text x="130" y="122" font-size="12" fill="#a3cf06">${currentGameName}</text>
+                <image href="${currentGameBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
+                ` : 
+                lastGameName ? `
+                <text x="130" y="96" font-size="10" fill="#898989">Last Played</text>
+                <text x="130" y="110" font-size="12" fill="#898989">${lastGameName}</text>
+                <text x="130" y="122" font-size="10" fill="#898989">${parseInt(fetchedData.lastGame[2] / 60)} hrs</text>
+                <image href="${lastPlayedBg}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
+                ` : `
+                <image href="${steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.08" />
+                ` 
+                }
+                <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${currentGameName ? `#a3cf06` : statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
+                
+                <image href="${fetchedData.avatar}" x="20" y="20" width="100px" height="100px" />
+                
+                <text x="130" y="32" font-size="16" fill="${statusColor}">${userName}</text>
+                <text x="330" y="32" font-size="16" fill="${statusColor}">${status}</text>      
+            </g>
 
-        <style>
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        </style>
-    </svg> 
+            <style type="text/css">
+                text { font-family: Arial, Helvetica, Verdana, sans-serif; }
+            </style>
+        </svg> 
    `
 }
 
-function getGameBackground(gameId) {
+function getGameBackgroundImage(gameId) {
     return `https://cdn.cloudflare.steamstatic.com/steam/apps/${gameId}/header.jpg`
 }
 
