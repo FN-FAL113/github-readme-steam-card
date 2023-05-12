@@ -22,7 +22,8 @@ app.use(
       useDefaults: true,
       directives: {
         "img-src": ["'self'", "https: data:"],
-        "style-src": ['*', "'unsafe-inline'"]
+        "style-src": ['*', "'unsafe-inline'"],
+        "media-src": ["'self'", "https: data:"]
       }
     })
 )

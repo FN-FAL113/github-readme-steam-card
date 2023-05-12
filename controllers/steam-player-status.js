@@ -10,43 +10,58 @@ const getStatus = async (req, res, next) => {
     const displayCurrentGameBG = current_game_bg != undefined ? current_game_bg === "true" : true
     
     // steam api user data url
-    const userUrlResource = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
+    const userUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
     // steam api user game data url
-    const gameUrlResource = `http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&count=3`
+    const ownedGamesUrl = `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true`
+    // steam api user profile background url
+    const profileBackgroundUrl = `http://api.steampowered.com/IPlayerService/GetProfileBackground/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
+    // steam api user avatar frame url
+    const avatarFrameUrl = `https://api.steampowered.com/IPlayerService/GetAvatarFrame/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
 
     try {
-        const response = await axios.get(userUrlResource)
-        const userData = response.data.response.players[0]
+        const getUserData = await axios.get(userUrl)
+        const userData = getUserData.data.response.players[0]
         
-        const response2 = await axios.get(gameUrlResource)
-        const gameData = response2.data.response.games
+        const getLastGameData = await axios.get(ownedGamesUrl)
+        const ownedGamesData = getLastGameData.data.response.games
+
+        const getProfileBackground = await axios.get(profileBackgroundUrl)
+        const profileBackgroundData = getProfileBackground.data.response.profile_background
+
+        const getAvatarFrame = await axios.get(avatarFrameUrl)
+        const avatarFrameData = getAvatarFrame.data.response.avatar_frame
       
         if (userData) {
             let user_status = null
             
+            // check user status and create data from it
             if(userData.personastate === 1) {
-                user_status = ['Online', '#57cbde']
+                user_status = { status: "Online", statusColor: "#57cbde"}
             } else if (userData.personastate === 2) {
-                user_status = 'Busy'
+                user_status = "Busy"
             } else if (userData.personastate === 3) {
-                user_status = ['Away', '#57cbde']
+                user_status = { status: "Away", statusColor: "#57cbde"}
             } else {
-                user_status = ['Offline', '#898989']
+                user_status = { status: "Offline", statusColor: "#898989" }
             }
-            
-            const currentGame = !userData.gameextrainfo ? null : [userData.gameextrainfo, userData.gameid];
-            const lastGame = !gameData ? null : [gameData[0].name, gameData[0].appid, gameData[0].playtime_forever];
-            const avatar = await getBase64Image(userData.avatarfull)
-            const steamLogo = await getBase64Image("https://www.pngmart.com/files/22/Steam-Logo-PNG-Transparent.png") // prone to stale resource
+                       
+            const currentGame = !userData.gameextrainfo ? null : userData
+            const recentGame = !ownedGamesData ? null : getRecentlyPlayedGameData(ownedGamesData)
+            const profileBackground = Object.keys(profileBackgroundData).length == 0 ? null : profileBackgroundData
+            const avatarFrame = Object.keys(avatarFrameData).length == 0 ? null : avatarFrameData
+            const avatarImageBase64 = await getBase64Media(userData.avatarfull)
+            const steamImageBase64 = await getBase64Media("https://www.pngmart.com/files/22/Steam-Logo-PNG-Transparent.png") // prone to stale resource
 
             const fetchedData = {
                 name: userData.personaname,
                 id: userData.steamid,
-                status: user_status,
-                avatar: avatar,
+                user_status: user_status,
+                avatar: avatarImageBase64,
+                profileBackground: profileBackground,
+                avatarFrame: avatarFrame,
                 currentGame: currentGame,
-                lastGame: lastGame,
-                steamLogo: steamLogo
+                recentGame: recentGame,
+                steamLogo: steamImageBase64
             }
         
             const svg = await initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG)
@@ -61,64 +76,196 @@ const getStatus = async (req, res, next) => {
     }
 }
 
+function getRecentlyPlayedGameData(gamesArr){
+    let recentGameDataObj = null
+
+    // get recent game played by comparing time last played
+    for (const gameDataObj of gamesArr) {
+        if(!recentGameDataObj){
+            recentGameDataObj = gameDataObj
+        } else if(gameDataObj.rtime_last_played > recentGameDataObj.rtime_last_played) {
+            recentGameDataObj = gameDataObj
+        }
+    }
+        
+    return recentGameDataObj
+}
+
 async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG) {
     // user status (name and font color)
-    const status = fetchedData.status[0]
-    const statusColor = fetchedData.status[1]
+    const status = fetchedData.user_status.status
+    const statusColor = fetchedData.user_status.statusColor
     
     // formatted names, defaults to null if no data
     const userName = fetchedData.name.length > 20 ? fetchedData.name.slice(0, 16) + '...' : fetchedData.name
-    const currentGameName = fetchedData.currentGame ? fetchedData.currentGame[0].length > 32 ? fetchedData.currentGame[0].slice(0, 28) + '...' : fetchedData.currentGame[0] : null
-    const lastGameName = fetchedData.lastGame ? fetchedData.lastGame[0].length > 32 ? fetchedData.lastGame[0].slice(0, 28) + '...' : fetchedData.lastGame[0] : null
+    const currentGameName = fetchedData.currentGame ? 
+        fetchedData.currentGame.gameextrainfo.length > 32 ? 
+            fetchedData.currentGame.gameextrainfo.slice(0, 28) + '...' : fetchedData.currentGame.gameextrainfo 
+        : null
+    const recentGameName = fetchedData.recentGame ? 
+        fetchedData.recentGame.name.length > 32 ? 
+            fetchedData.recentGame.name.slice(0, 28) + '...' : fetchedData.recentGame.name 
+        : null
     
-    // should display current game background else default to steam logo if data are not available
-    let currentGameBg = fetchedData.steamLogo
+    // should display current game background else default to steam logo if current game data are not available
+    let currentGameBgMetaData = [fetchedData.steamLogo, "295", "10", "170px", "170px"]
     if(currentGameName && displayCurrentGameBG) {
-        currentGameBg = await getBase64Image(setGetGameBGUrl(fetchedData?.currentGame?.[1]))
+        currentGameBgMetaData = [await getBase64Media(setGetGameBGUrl(fetchedData?.currentGame.gameid)), "266", "-10", "260px", "210px"]
     }
      
-    // should display last played game background else default to steam logo if data are not available
-    let lastPlayedBg = fetchedData.steamLogo
-    if(lastGameName && displayLastPlayedGameBG) {
-        lastPlayedBg = await getBase64Image(setGetGameBGUrl(fetchedData?.lastGame?.[1]))
+    // should display last played game background else default to steam logo if last game data are not available
+    let recentGameBgMetaData = [fetchedData.steamLogo, "295", "10", "170px", "170px"]
+    if(recentGameName && displayLastPlayedGameBG) {
+        recentGameBgMetaData = [await getBase64Media(setGetGameBGUrl(fetchedData?.recentGame.appid)), "266", "-10", "260px", "210px"]
     }
 
+    // profile background
+    const profileBackgroundBase64 = fetchedData?.profileBackground?.movie_webm ? 
+        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.movie_webm)) : await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
+    
+    // avatar frame
+    const avatarFrameBase64 = fetchedData?.avatarFrame && 
+        await getBase64Media(setPublicImageUrl(fetchedData.avatarFrame.image_small)) 
+    
     return `
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="150">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
             <g>
-                <rect width="400" height="150" fill="#1b2838" />    
+                <!-- main container -->
+                <rect width="600" height="200" fill="#1b2838" />    
                 
+               
                 ${
-                currentGameName ? `
-                    <text x="130" y="108" font-size="10" fill="#a3cf06">In-Game</text>
-                    <text x="130" y="122" font-size="12" fill="#a3cf06">${currentGameName}</text>
-                    <image href="data:image/jpeg;base64,${currentGameBg}" x="225" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.325" />
-                ` : 
-                lastGameName ? `
-                    <text x="130" y="96" font-size="10" fill="#898989">Last Played</text>
-                    <text x="130" y="110" font-size="12" fill="#898989">${lastGameName}</text>
-                    <text x="130" y="122" font-size="10" fill="#898989">${parseInt(fetchedData.lastGame[2] / 60)} hrs</text>
-                    <image href="data:image/jpeg;base64,${lastPlayedBg}" x="225" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.325" />
-                ` : `
-                    <image href="data:image/png;base64,${fetchedData.steamLogo}" x="230" y="-10" width="200px" height="170px" preserveAspectRatio="none" opacity="0.325" />
-                ` 
+                fetchedData?.profileBackground ? 
+                    fetchedData.profileBackground?.movie_webm ? 
+                    `
+                        <foreignObject width="400" height="200" x="-112" y="0">
+                            <video xmlns="http://www.w3.org/1999/xhtml" width="400" height="200" autoplay="true" muted="true" loop="true" opacity="0.5">
+                                <source src="data:video/mp4;base64,${profileBackgroundBase64}" type="video/mp4"/>
+                            </video>
+                        </foreignObject>
+                    `
+                    :
+                    `
+                        <image 
+                            href="data:image/jpeg;base64,${profileBackgroundBase64}" 
+                            x="-120"  
+                            y="0"  
+                            width="400" 
+                            height="200" 
+                            preserveAspectRatio="none" 
+                            opacity="0.4" 
+                        />
+                    ` 
+                :   ""
+                }
+
+                <!-- game status and image -->
+                ${
+                currentGameName ? 
+                    `
+                        <text x="158" y="144" font-size="14" fill="#a3cf06">In-Game</text>
+                        <text x="158" y="159" font-size="16" fill="#a3cf06">${currentGameName}</text>
+                        <image 
+                            href="data:image/jpeg;base64,${currentGameBgMetaData[0]}" 
+                            x="${currentGameBgMetaData[1]}"  
+                            y="${currentGameBgMetaData[2]}"  
+                            width="${currentGameBgMetaData[3]}" 
+                            height="${currentGameBgMetaData[4]}" 
+                            preserveAspectRatio="none" 
+                            opacity="0.3" 
+                        />
+                    ` : 
+                    recentGameName ? 
+                    `
+                        <text x="158" y="127" font-size="14" fill="#898989">Last Played</text>
+                        <text x="158" y="142" font-size="16" fill="#898989">${recentGameName}</text>
+                        <text x="158" y="162" font-size="14" fill="#898989">${parseInt(fetchedData.recentGame.playtime_forever / 60)} hrs</text>
+                        <image 
+                            href="data:image/jpeg;base64,${recentGameBgMetaData[0]}" 
+                            x="${recentGameBgMetaData[1]}"  
+                            y="${recentGameBgMetaData[2]}"  
+                            width="${recentGameBgMetaData[3]}" 
+                            height="${recentGameBgMetaData[4]}" 
+                            preserveAspectRatio="none" 
+                            opacity="0.3" 
+                        />
+                    ` 
+                : 
+                    `
+                        <image 
+                            href="data:image/png;base64,${fetchedData.steamLogo}" 
+                            x="295" 
+                            y="10" 
+                            width="170px" 
+                            height="170px" 
+                            preserveAspectRatio="none" 
+                            opacity="0.325" 
+                        />
+                    ` 
+                }
+                  
+                <!-- profile image -->
+                <image 
+                    x="20" 
+                    y="40" 
+                    width="125px" 
+                    height="125px" 
+                    href="data:image/jpeg;base64,${fetchedData.avatar}"  
+                />
+
+                <!-- profile border frame -->
+                ${
+                    fetchedData?.avatarFrame ? 
+                    `
+                        <image 
+                            href="data:image/png;base64,${avatarFrameBase64}" 
+                            x="10"  
+                            y="26"  
+                            width="148px" 
+                            height="152px" 
+                            preserveAspectRatio="none" 
+                        />
+                    `
+                :
+                    `
+                        <rect 
+                            x="20"
+                            y="40" 
+                            width="125px" 
+                            height="125px" 
+                            fill="none" 
+                            stroke="${currentGameName ? `#a3cf06` : statusColor}" 
+                            stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} 
+                        />
+                    `
                 }
                 
-                <rect x="20" y="20" width="100px" height="100px" fill="none" stroke="${currentGameName ? `#a3cf06` : statusColor}" stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} />
-                <image href="data:image/jpeg;base64,${fetchedData.avatar}" x="20" y="20" width="100px" height="100px" />
+                <!-- username -->
+                <text x="157" y="62" font-size="20" fill="${statusColor}">${userName}</text>
                 
-                <text x="130" y="32" font-size="16" fill="${statusColor}">${userName}</text>
-                <text x="330" y="32" font-size="16" fill="${statusColor}">${status}</text>      
+                <!-- user status -->
+                <text x="420" y="62" font-size="20" fill="${statusColor}">${status}</text>      
             </g>
 
             <style type="text/css">
-                text { font-family: Arial, Helvetica, Verdana, sans-serif; }
+                text { 
+                    font-family: Arial, Helvetica, Verdana, sans-serif; 
+                }
+                
+                video::-webkit-media-controls-panel {
+                    display: none !important;
+                    opacity: 1 !important;
+                }
+
+                video{
+                    opacity: 0.475;
+                } 
             </style>
         </svg> 
    `
 }
 
-async function getBase64Image(url) {
+async function getBase64Media(url) {
     const image = await axios.get(url, {
         responseType: 'text',
         responseEncoding: 'base64'
@@ -127,8 +274,12 @@ async function getBase64Image(url) {
     return image.data
 }
 
+function setPublicImageUrl(path) {
+    return `https://cdn.akamai.steamstatic.com/steamcommunity/public/images/${path}`
+}
+
 function setGetGameBGUrl(gameId) {
-    return `https://cdn.cloudflare.steamstatic.com/steam/apps/${gameId}/header.jpg`
+    return `https://cdn.akamai.steamstatic.com/steam/apps/${gameId}/header.jpg`
 }
 
 module.exports = {
