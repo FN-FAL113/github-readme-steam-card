@@ -66,7 +66,7 @@ const getStatus = async (req, res, next) => {
         
             const svg = await initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG)
             
-            res.set('Cache-Control', 's-maxage=1, stale-while-revalidate')
+            res.set('Cache-control', 'max-age=0, s-maxage=384')
             res.set('Content-Type', 'image/svg+xml');
             res.status(200).send(svg);          
         } else {
@@ -122,7 +122,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
 
     // profile background
     const profileBackgroundBase64 = fetchedData?.profileBackground?.movie_webm ? 
-        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.movie_webm_small)) : await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
+        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.movie_mp4_small)) : await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
     
     // avatar frame
     const avatarFrameBase64 = fetchedData?.avatarFrame && 
@@ -137,7 +137,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                
                 ${
                 fetchedData?.profileBackground ? 
-                    fetchedData.profileBackground?.movie_webm_small ? 
+                    fetchedData.profileBackground?.movie_mp4_small ? 
                     `
                         <foreignObject width="400" height="200" x="-112" y="0">
                             <video xmlns="http://www.w3.org/1999/xhtml" width="400" height="200" autoplay="true" muted="true" loop="true" opacity="0.5">
@@ -276,11 +276,11 @@ async function getBase64Media(url) {
 }
 
 function setPublicImageUrl(path) {
-    return `https://cdn.akamai.steamstatic.com/steamcommunity/public/images/${path}`
+    return `https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/${path}`
 }
 
 function setGetGameBGUrl(gameId) {
-    return `https://cdn.akamai.steamstatic.com/steam/apps/${gameId}/header.jpg`
+    return `https://cdn.cloudflare.steamstatic.com/steam/apps/${gameId}/header.jpg`
 }
 
 module.exports = {
