@@ -66,6 +66,7 @@ const getStatus = async (req, res, next) => {
         
             const svg = await initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG)
             
+            res.set('Cache-Control', 's-maxage=1, stale-while-revalidate')
             res.set('Content-Type', 'image/svg+xml');
             res.status(200).send(svg);          
         } else {
