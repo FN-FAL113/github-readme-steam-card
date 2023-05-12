@@ -121,7 +121,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
 
     // profile background
     const profileBackgroundBase64 = fetchedData?.profileBackground?.movie_webm ? 
-        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.movie_webm)) : await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
+        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.movie_webm_small)) : await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
     
     // avatar frame
     const avatarFrameBase64 = fetchedData?.avatarFrame && 
@@ -136,7 +136,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                
                 ${
                 fetchedData?.profileBackground ? 
-                    fetchedData.profileBackground?.movie_webm ? 
+                    fetchedData.profileBackground?.movie_webm_small ? 
                     `
                         <foreignObject width="400" height="200" x="-112" y="0">
                             <video xmlns="http://www.w3.org/1999/xhtml" width="400" height="200" autoplay="true" muted="true" loop="true" opacity="0.5">
