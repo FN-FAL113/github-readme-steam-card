@@ -66,7 +66,8 @@ const getStatus = async (req, res, next) => {
         
             const svg = await initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG)
             
-            res.set('Cache-control', 'max-age=0, s-maxage=384')
+            // serve from cache, but update it, if requested after 1 second
+            res.set('Cache-Control', 's-maxage=1, stale-while-revalidate')
             res.set('Content-Type', 'image/svg+xml');
             res.status(200).send(svg);          
         } else {
@@ -121,8 +122,8 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
     }
 
     // profile background
-    const profileBackgroundBase64 = fetchedData?.profileBackground?.movie_webm ? 
-        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.movie_mp4_small)) : await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
+    const profileBackgroundBase64 = fetchedData?.profileBackground?.image_large && 
+        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
     
     // avatar frame
     const avatarFrameBase64 = fetchedData?.avatarFrame && 
@@ -131,25 +132,16 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
             <g>
-                <!-- main container -->
+                <!-- main box container -->
                 <rect width="600" height="200" fill="#1b2838" />    
                 
-               
+                <!-- profile background -->
                 ${
-                fetchedData?.profileBackground ? 
-                    fetchedData.profileBackground?.movie_mp4_small ? 
-                    `
-                        <foreignObject width="400" height="200" x="-112" y="0">
-                            <video xmlns="http://www.w3.org/1999/xhtml" width="400" height="200" autoplay="true" muted="true" loop="true" opacity="0.5">
-                                <source src="data:video/mp4;base64,${profileBackgroundBase64}" type="video/mp4"/>
-                            </video>
-                        </foreignObject>
-                    `
-                    :
+                fetchedData?.profileBackground?.image_large ? 
                     `
                         <image 
                             href="data:image/jpeg;base64,${profileBackgroundBase64}" 
-                            x="-120"  
+                            x="-134"  
                             y="0"  
                             width="400" 
                             height="200" 

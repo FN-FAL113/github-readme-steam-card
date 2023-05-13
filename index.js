@@ -14,7 +14,6 @@ const errorHandler = require('./middleware/error-handler')
 
 app.set('trust proxy', 1)
 
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json())
 app.use(cors())
 app.use(
@@ -22,8 +21,7 @@ app.use(
       useDefaults: true,
       directives: {
         "img-src": ["'self'", "https: data:"],
-        "style-src": ['*', "'unsafe-inline'"],
-        "media-src": ["'self'", "https: data:"]
+        "style-src": ["'unsafe-inline'"],
       }
     })
 )
