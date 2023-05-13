@@ -146,7 +146,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                             width="400" 
                             height="200" 
                             preserveAspectRatio="none" 
-                            opacity="0.4" 
+                            opacity="0.5" 
                         />
                     ` 
                 :   ""
@@ -180,7 +180,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                             width="${recentGameBgMetaData[3]}" 
                             height="${recentGameBgMetaData[4]}" 
                             preserveAspectRatio="none" 
-                            opacity="0.3" 
+                            opacity="0.325" 
                         />
                     ` 
                 : 
@@ -228,7 +228,8 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                             height="125px" 
                             fill="none" 
                             stroke="${currentGameName ? `#a3cf06` : statusColor}" 
-                            stroke-width="3" ${status == 'Away' ? `stroke-dasharray="3,3"`: ``} 
+                            stroke-width="3" 
+                            ${status == 'Away' ? `stroke-dasharray="3,3"`: ""} 
                         />
                     `
                 }
