@@ -23,12 +23,12 @@ const errorHandler = async (err, req, res, next) => {
         }
     }
 
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="150"> 
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="560" height="200"> 
         <g>
-            <rect x="0" y="0" width="400" height="150" fill="#1b2838" /> 
-            <text x="10" y="20" font-size="14" fill="white">Error ${customError.statusCode} encountered:</text>
-            <text x="10" y="35" font-size="13" fill="orange">${customError.msg}</text>
-            <text x="10" y="50" font-size="12" fill="yellow">Please verify your steam id</text>
+            <rect x="0" y="0" width="500" height="200" fill="#1b2838" /> 
+            <text x="10" y="23" font-size="18" fill="white">Error ${customError.statusCode} encountered:</text>
+            <text x="10" y="38" font-size="17" fill="red">${customError.msg}</text>
+            <text x="10" y="53" font-size="16" fill="yellow">Please verify your steam id</text>
         </g>  
         <style type="text/css">
             text { font-family: Arial, Helvetica, Verdana, sans-serif; }
