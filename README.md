@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center">Github Readme Steam Status</h1>
-  <p align="center">:video_game: A dynamically generated steam status for your github readme inspired by github readme stats</p>
+  <p align="center">:video_game: A dynamically generated steam status for your github readme</p>
   <p align="center">Animated avatar frames are supported!</p>
 </p>
 </p>
@@ -29,11 +29,11 @@ Add the following markdown to your github readme
 use your steamid64 as the value for ```?steamid=``` (you may use [steam id finder](https://www.steamidfinder.com/)), you may adjust the width and height of the card through markdown.
 
 ```md
-<img src="https://github-readme-steam-status.vercel.app/?steamid=<SteamID64 here>" alt="" width="500px" height="200px" />
+<img src="https://github-readme-steam-status.vercel.app/?steamid=<SteamID64 here>"/>
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/e362b289-11c2-444f-8546-4f99aa621535" alt="" width="500px" height="200px" />
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/e362b289-11c2-444f-8546-4f99aa621535"/>
 </p>
 
 ## Available Options
@@ -55,7 +55,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_g
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/210c475e-1b3f-4b25-8419-0de192908171" alt="" width="500px" height="200px" />
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/210c475e-1b3f-4b25-8419-0de192908171"/>
 </p>
 
 ```md
@@ -63,7 +63,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&last_play
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/eb64d409-5475-4428-aebe-8828a5e3131c" alt="" width="500px" height="200px" />
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/eb64d409-5475-4428-aebe-8828a5e3131c"/>
 </p>
 
 ```md
@@ -72,7 +72,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&last_play
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/5a3bc100-3e9a-47d3-9752-95c1c93246ca" alt="" width="500px" height="200px" />
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/5a3bc100-3e9a-47d3-9752-95c1c93246ca"/>
 </p>
 
 You may combine these options together
