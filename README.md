@@ -46,7 +46,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_g
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/687e6f4f-0228-461a-9e62-bf032373b373" alt="" width="500px" height="200px" />
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/687e6f4f-0228-461a-9e62-bf032373b373"/>
 </p>
 
 ```md
@@ -91,7 +91,7 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
 ### Serverless Cold Start
-On first api call a cold start may cause an image timeout but will resolve on second load.
+On first api call a cold start may cause an image timeout but will resolve on second request.
 
 ### Disclaimer
 This project or its author are not affiliated, associated, authorized, endorsed by steam, its affiliates or subsidiaries. Images, names and other form of trademark are registered to their respective owners.
