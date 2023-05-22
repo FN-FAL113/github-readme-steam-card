@@ -38,8 +38,8 @@ use your steamid64 as the value for ```?steamid=``` (you may use [steam id finde
 
 ## Available Options
 
--   `current_game_bg` - Use current game banner as a partial background for the card else use steam logo. Default: `true`.
--   `last_played_bg` - Same description as above except its for the last game you played and when you are not in-game. Default: `true`.
+-   `current_game_bg` - Use current game banner as a partial background for the card else use steam logo
+-   `last_played_bg` - Same description as above except its for the last game you played and when you are not in-game
 
 ```md
 https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_game_bg=false
