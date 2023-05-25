@@ -12,7 +12,7 @@ const getStatus = async (req, res, next) => {
     // steam api user data url
     const userUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
     // steam api user game data url
-    const ownedGamesUrl = `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true`
+    const ownedGamesUrl = `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true&include_played_free_games=true`
     // steam api user profile background url
     const profileBackgroundUrl = `http://api.steampowered.com/IPlayerService/GetProfileBackground/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
     // steam api user avatar frame url
