@@ -50,7 +50,7 @@ const getStatus = async (req, res, next) => {
             const profileBackground = Object.keys(profileBackgroundData).length == 0 ? null : profileBackgroundData
             const avatarFrame = Object.keys(avatarFrameData).length == 0 ? null : avatarFrameData
             const avatarImageBase64 = await getBase64Media(userData.avatarfull)
-            const steamImageBase64 = await getBase64Media("https://www.pngmart.com/files/22/Steam-Logo-PNG-Transparent.png") // prone to stale resource
+            const steamImageBase64 = await getBase64Media("https://www.pngmart.com/files/22/Steam-Logo-PNG-Transparent.png") // prone to stale resource, never hardcode this
 
             const fetchedData = {
                 name: userData.personaname,
@@ -66,7 +66,7 @@ const getStatus = async (req, res, next) => {
         
             const svg = await initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameBG)
             
-            // serve from cache, but update it, if requested after 1 second
+            // serve a stale response from cache while being revalidated
             res.set('Cache-Control', 's-maxage=1, stale-while-revalidate')
             res.set('Content-Type', 'image/svg+xml');
             res.status(200).send(svg);          
@@ -109,16 +109,16 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
             fetchedData.recentGame.name.slice(0, 28) + '...' : fetchedData.recentGame.name 
         : null
     
-    // should display current game background else default to steam logo if current game data are not available
-    let currentGameBgMetaData = [fetchedData.steamLogo, "295", "10", "170px", "170px"]
+    // should display current game background else default to steam logo if game data are not available
+    let currentGameBgMetadata = [fetchedData.steamLogo, "305", "10", "170px", "170px"]
     if(currentGameName && displayCurrentGameBG) {
-        currentGameBgMetaData = [await getBase64Media(setGetGameBGUrl(fetchedData?.currentGame.gameid)), "266", "-10", "260px", "210px"]
+        currentGameBgMetadata = [await getBase64Media(setGetGameBGUrl(fetchedData?.currentGame.gameid)), "283", "-10", "260px", "210px"]
     }
      
-    // should display last played game background else default to steam logo if last game data are not available
-    let recentGameBgMetaData = [fetchedData.steamLogo, "295", "10", "170px", "170px"]
+    // should display last played game background else default to steam logo if game data are not available
+    let recentGameBgMetadata = [fetchedData.steamLogo, "305", "10", "170px", "170px"]
     if(recentGameName && displayLastPlayedGameBG) {
-        recentGameBgMetaData = [await getBase64Media(setGetGameBGUrl(fetchedData?.recentGame.appid)), "266", "-10", "260px", "210px"]
+        recentGameBgMetadata = [await getBase64Media(setGetGameBGUrl(fetchedData?.recentGame.appid)), "283", "-10", "260px", "210px"]
     }
 
     // profile background
@@ -141,12 +141,12 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                     `
                         <image 
                             href="data:image/jpeg;base64,${profileBackgroundBase64}" 
-                            x="-134"  
+                            x="-116"  
                             y="0"  
                             width="400" 
                             height="200" 
                             preserveAspectRatio="none" 
-                            opacity="0.5" 
+                            opacity="0.525" 
                         />
                     ` 
                 :   ""
@@ -156,32 +156,32 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                 ${
                 currentGameName ? 
                     `
-                        <text x="158" y="144" font-size="14" fill="#a3cf06">In-Game</text>
-                        <text x="158" y="159" font-size="16" fill="#a3cf06">${currentGameName}</text>
                         <image 
-                            href="data:image/jpeg;base64,${currentGameBgMetaData[0]}" 
-                            x="${currentGameBgMetaData[1]}"  
-                            y="${currentGameBgMetaData[2]}"  
-                            width="${currentGameBgMetaData[3]}" 
-                            height="${currentGameBgMetaData[4]}" 
-                            preserveAspectRatio="none" 
-                            opacity="0.3" 
-                        />
-                    ` : 
-                    recentGameName ? 
-                    `
-                        <text x="158" y="127" font-size="14" fill="#898989">Last Played</text>
-                        <text x="158" y="142" font-size="16" fill="#898989">${recentGameName}</text>
-                        <text x="158" y="162" font-size="14" fill="#898989">${parseInt(fetchedData.recentGame.playtime_forever / 60)} hrs</text>
-                        <image 
-                            href="data:image/jpeg;base64,${recentGameBgMetaData[0]}" 
-                            x="${recentGameBgMetaData[1]}"  
-                            y="${recentGameBgMetaData[2]}"  
-                            width="${recentGameBgMetaData[3]}" 
-                            height="${recentGameBgMetaData[4]}" 
+                            href="data:image/jpeg;base64,${currentGameBgMetadata[0]}" 
+                            x="${currentGameBgMetadata[1]}"  
+                            y="${currentGameBgMetadata[2]}"  
+                            width="${currentGameBgMetadata[3]}" 
+                            height="${currentGameBgMetadata[4]}" 
                             preserveAspectRatio="none" 
                             opacity="0.325" 
                         />
+                        <text x="158" y="144" font-size="14" fill="#a3cf06">In-Game</text>
+                        <text x="158" y="161" font-size="16" fill="#a3cf06">${currentGameName}</text>
+                    ` : 
+                    recentGameName ? 
+                    `
+                        <image 
+                            href="data:image/jpeg;base64,${recentGameBgMetadata[0]}" 
+                            x="${recentGameBgMetadata[1]}"  
+                            y="${recentGameBgMetadata[2]}"  
+                            width="${recentGameBgMetadata[3]}" 
+                            height="${recentGameBgMetadata[4]}" 
+                            preserveAspectRatio="none" 
+                            opacity="0.325"
+                        />
+                        <text x="158" y="127" font-size="14" fill="#898989">Last Played</text>
+                        <text x="158" y="144" font-size="16" fill="#898989">${recentGameName}</text>
+                        <text x="158" y="162" font-size="14" fill="#898989">${parseInt(fetchedData.recentGame.playtime_forever / 60)} hrs</text>
                     ` 
                 : 
                     `
@@ -235,7 +235,7 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                 }
                 
                 <!-- username -->
-                <text x="157" y="62" font-size="20" fill="${statusColor}">${userName}</text>
+                <text x="158" y="62" font-size="20" fill="${statusColor}">${userName}</text>
                 
                 <!-- user status -->
                 <text x="420" y="62" font-size="20" fill="${statusColor}">${status}</text>      
@@ -245,15 +245,6 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
                 text { 
                     font-family: Arial, Helvetica, Verdana, sans-serif; 
                 }
-                
-                video::-webkit-media-controls-panel {
-                    display: none !important;
-                    opacity: 1 !important;
-                }
-
-                video{
-                    opacity: 0.475;
-                } 
             </style>
         </svg> 
    `
