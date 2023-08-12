@@ -1,6 +1,8 @@
 
 const NotFoundError = require('../errors/not-found')
 const axios = require('axios');
+const { readFile } = require('fs').promises
+const { join } = require('path')
 
 const getStatus = async (req, res, next) => {
     const { steamid, last_played_bg, current_game_bg } = req.query;
@@ -17,6 +19,8 @@ const getStatus = async (req, res, next) => {
     const profileBackgroundUrl = `http://api.steampowered.com/IPlayerService/GetProfileBackground/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
     // steam api user avatar frame url
     const avatarFrameUrl = `https://api.steampowered.com/IPlayerService/GetAvatarFrame/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
+    // steam api user equipped profile items url
+    const equippedProfileItems = `https://api.steampowered.com/IPlayerService/GetProfileItemsEquipped/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
 
     try {
         const getUserData = await axios.get(userUrl)
@@ -30,6 +34,9 @@ const getStatus = async (req, res, next) => {
 
         const getAvatarFrame = await axios.get(avatarFrameUrl)
         const avatarFrameData = getAvatarFrame.data.response.avatar_frame
+
+        const getUserEquippedProfileItems = await axios.get(equippedProfileItems)
+        const userEquippedProfileItemsData = getUserEquippedProfileItems.data.response
       
         if (userData) {
             let user_status = null
@@ -49,8 +56,9 @@ const getStatus = async (req, res, next) => {
             const recentGame = !ownedGamesData ? null : getRecentlyPlayedGameData(ownedGamesData)
             const profileBackground = Object.keys(profileBackgroundData).length == 0 ? null : profileBackgroundData
             const avatarFrame = Object.keys(avatarFrameData).length == 0 ? null : avatarFrameData
-            const avatarImageBase64 = await getBase64Media(userData.avatarfull)
-            const steamImageBase64 = await getBase64Media("https://www.pngmart.com/files/22/Steam-Logo-PNG-Transparent.png") // prone to stale resource, never hardcode this
+            const avatarImageBase64 = await getBase64UrlMedia(userEquippedProfileItemsData.animated_avatar?.image_small ?
+               setPublicImageUrl(userEquippedProfileItemsData.animated_avatar.image_small) : userData.avatarfull)
+            const steamImageBase64 = await getBase64LocalMedia(join('public', 'Steam-Logo-Transparent.png'))
 
             const fetchedData = {
                 name: userData.personaname,
@@ -71,10 +79,11 @@ const getStatus = async (req, res, next) => {
             res.set('Content-Type', 'image/svg+xml');
             res.status(200).send(svg);          
         } else {
-            throw new NotFoundError('No user not found, verify your steam id')
+            throw new NotFoundError('User not found, verify your steam id')
         }
     } catch (error) {
-       next(error)
+        console.log(error)
+        next(error)
     }
 }
 
@@ -112,22 +121,22 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
     // should display current game background else default to steam logo if game data are not available
     let currentGameBgMetadata = [fetchedData.steamLogo, "305", "10", "170px", "170px"]
     if(currentGameName && displayCurrentGameBG) {
-        currentGameBgMetadata = [await getBase64Media(setGetGameBGUrl(fetchedData?.currentGame.gameid)), "283", "-10", "260px", "210px"]
+        currentGameBgMetadata = [await getBase64UrlMedia(setGetGameBGUrl(fetchedData?.currentGame.gameid)), "283", "-10", "285px", "210px"]
     }
      
     // should display last played game background else default to steam logo if game data are not available
     let recentGameBgMetadata = [fetchedData.steamLogo, "305", "10", "170px", "170px"]
     if(recentGameName && displayLastPlayedGameBG) {
-        recentGameBgMetadata = [await getBase64Media(setGetGameBGUrl(fetchedData?.recentGame.appid)), "283", "-10", "260px", "210px"]
+        recentGameBgMetadata = [await getBase64UrlMedia(setGetGameBGUrl(fetchedData?.recentGame.appid)), "283", "-10", "285px", "210px"]
     }
 
     // profile background
     const profileBackgroundBase64 = fetchedData?.profileBackground?.image_large && 
-        await getBase64Media(setPublicImageUrl(fetchedData.profileBackground.image_large))
+        await getBase64UrlMedia(setPublicImageUrl(fetchedData.profileBackground.image_large))
     
     // avatar frame
     const avatarFrameBase64 = fetchedData?.avatarFrame && 
-        await getBase64Media(setPublicImageUrl(fetchedData.avatarFrame.image_small)) 
+        await getBase64UrlMedia(setPublicImageUrl(fetchedData.avatarFrame.image_small)) 
     
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
@@ -250,13 +259,19 @@ async function initSvg(fetchedData, displayLastPlayedGameBG, displayCurrentGameB
    `
 }
 
-async function getBase64Media(url) {
+async function getBase64UrlMedia(url) {
     const image = await axios.get(url, {
         responseType: 'text',
         responseEncoding: 'base64'
     })
 
     return image.data
+}
+
+async function getBase64LocalMedia(path) {
+    const img = await readFile(path)
+
+    return Buffer.from(img).toString('base64')
 }
 
 function setPublicImageUrl(path) {

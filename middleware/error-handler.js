@@ -8,8 +8,8 @@ const errorHandler = async (err, req, res, next) => {
 
     if(err instanceof TypeError){
         customError = {
-            statusCode: StatusCodes.NOT_FOUND,
-            msg: 'User data not found, set your profile and game details to public',
+            statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: 'Error encountered!',
         }
     } else if(err.response){
         customError = {
