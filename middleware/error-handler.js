@@ -3,15 +3,10 @@ const { StatusCodes } = require('http-status-codes')
 const errorHandler = async (err, req, res, next) => {
     let customError = {
         statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-        msg: 'Something went wrong try again later',
+        msg: 'Something went wrong, please report to github',
     }
 
-    if(err instanceof TypeError){
-        customError = {
-            statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-            msg: 'Error encountered!',
-        }
-    } else if(err.response){
+    if(err.response){
         customError = {
             statusCode: err.response.status,
             msg: err.response.statusText,

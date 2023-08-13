@@ -19,9 +19,7 @@ const getStatus = async (req, res, next) => {
     const profileBackgroundUrl = `http://api.steampowered.com/IPlayerService/GetProfileBackground/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
     // steam api user avatar frame url
     const avatarFrameUrl = `https://api.steampowered.com/IPlayerService/GetAvatarFrame/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
-    // steam api user equipped profile items url
-    const equippedProfileItems = `https://api.steampowered.com/IPlayerService/GetProfileItemsEquipped/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
-
+ 
     try {
         const getUserData = await axios.get(userUrl)
         const userData = getUserData.data.response.players[0]
@@ -34,9 +32,6 @@ const getStatus = async (req, res, next) => {
 
         const getAvatarFrame = await axios.get(avatarFrameUrl)
         const avatarFrameData = getAvatarFrame.data.response.avatar_frame
-
-        const getUserEquippedProfileItems = await axios.get(equippedProfileItems)
-        const userEquippedProfileItemsData = getUserEquippedProfileItems.data.response
       
         if (userData) {
             let user_status = null
@@ -56,8 +51,7 @@ const getStatus = async (req, res, next) => {
             const recentGame = !ownedGamesData ? null : getRecentlyPlayedGameData(ownedGamesData)
             const profileBackground = Object.keys(profileBackgroundData).length == 0 ? null : profileBackgroundData
             const avatarFrame = Object.keys(avatarFrameData).length == 0 ? null : avatarFrameData
-            const avatarImageBase64 = await getBase64UrlMedia(userEquippedProfileItemsData.animated_avatar?.image_small ?
-               setPublicImageUrl(userEquippedProfileItemsData.animated_avatar.image_small) : userData.avatarfull)
+            const avatarImageBase64 = await getBase64UrlMedia(userData.avatarfull)
             const steamImageBase64 = await getBase64LocalMedia(join('public', 'Steam-Logo-Transparent.png'))
 
             const fetchedData = {
@@ -82,7 +76,6 @@ const getStatus = async (req, res, next) => {
             throw new NotFoundError('User not found, verify your steam id')
         }
     } catch (error) {
-        console.log(error)
         next(error)
     }
 }
