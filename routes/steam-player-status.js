@@ -6,6 +6,6 @@ const { getStatus } = require('../controllers/steam-player-status')
 // @route   GET /
 // @desc    Get steam player status
 // @access  Public
-router.route('/').get(getStatus)
+router.route('/status/').get(getStatus)
 
 module.exports = router

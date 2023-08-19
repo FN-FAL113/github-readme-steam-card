@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Github Readme Steam Status</h1>
   <p align="center">:video_game: A dynamically generated steam status for your github readme</p>
-  <p align="center">Animated avatar frames are supported!</p>
+  <p align="center">Animated avatar frames supported!</p>
 </p>
 </p>
 <p align="center">
@@ -22,6 +22,10 @@
   </a> 
 </p>
 
+<p align="center">
+    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110"/>
+</p>
+
 ## Usage
 
 Add the following markdown to your github readme
@@ -29,20 +33,16 @@ Add the following markdown to your github readme
 use your steamid64 as the value for ```?steamid=``` (you may use [steam id finder](https://www.steamidfinder.com/)), you may adjust the width and height of the card through markdown.
 
 ```md
-<img src="https://github-readme-steam-status.vercel.app/?steamid=<SteamID64 here>"/>
+<img src="https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64 here>"/>
 ```
-
-<p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/e362b289-11c2-444f-8546-4f99aa621535"/>
-</p>
 
 ## Available Options
 
--   `current_game_bg` - Use current game banner as a partial background for the card else use steam logo
--   `last_played_bg` - Same description as above except its for the last game you played and when you are not in-game
+-   `show_in_game_bg` - display in game banner as a partial background, fallback to steam logo if set to false.
+-   `show_recent_game_bg` - display recent game banner as partial background, fallback to steam logo if set to false.
 
 ```md
-https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_game_bg=false
+https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=false
 ```
 
 <p align="center">
@@ -51,7 +51,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_g
 
 ```md
 Default if current game bg option is not stated
-https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_game_bg=true
+https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true
 ```
 
 <p align="center">
@@ -59,7 +59,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_g
 </p>
 
 ```md
-https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&last_played_bg=false
+https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=false
 ```
 
 <p align="center">
@@ -68,7 +68,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&last_play
 
 ```md
 Default if last game bg option is not stated
-https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&last_played_bg=true
+https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true
 ```
 
 <p align="center">
@@ -77,7 +77,7 @@ https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&last_play
 
 You may combine these options together
 ```md
-https://github-readme-steam-status.vercel.app/?steamid=<SteamID64here>&current_game_bg=true&last_played_bg=true
+https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true&show_recent_game_bg=false
 ```
 
 ## Deploy your own Vercel instance
@@ -90,15 +90,19 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
-### Serverless Cold Start
-On first api call a cold start may cause an image timeout but will resolve on second request.
+### FAQ
+1. **Animated avatar support when....**
+- Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time that is also being affected by Cold Boots with the cost of not supporting animated avatars. This might change in the future hopefully.
+
+2. **Cold Boot and Github CDN timeouts**
+- Cold boots may cause image loading or rendering timeouts through github's cdn proxy which has a time limit on serving content from the origin. Subsequent requests might return a stale response while revalidating the cache to serve the most recent content. 
 
 ### Disclaimer
 This project or its author are not affiliated, associated, authorized, endorsed by steam, its affiliates or subsidiaries. Images, names and other form of trademark are registered to their respective owners.
 
-## :sparkling_heart: Support the project
+## :sparkling_heart: Support the project/dev
 
-I'm devotee of open-source. Everything is free with all the effort and time I gave for this and other projects. However there are some ways you can show your support:
+Open-sourcing projects are great with all the effort and time I gave without asking for donations. However there are some ways you can show your support to me:
 
-- Starring or sharing this project
+- Giving a star or sharing this project to gamer devs out there
 - Pr's are welcome and highly appreciated if you think you can make this project better :)
