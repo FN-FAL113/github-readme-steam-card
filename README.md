@@ -30,10 +30,15 @@
 
 Add the following markdown to your github readme
 
-use your steamid64 as the value for ```?steamid=``` (you may use [steam id finder](https://www.steamidfinder.com/)), you may adjust the width and height of the card through markdown.
+use your steamid64 as the value for ```?steamid=``` (you may use [steam id finder](https://www.steamidfinder.com/)).
 
-```md
+display through markup
+```html
 <img src="https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64 here>"/>
+```
+or through markdown
+```md
+![GRSS](https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64 here>)
 ```
 
 ## Available Options
@@ -92,7 +97,9 @@ You may fork this project and deploy it to vercel or click the deploy button bel
 
 ### FAQ
 1. **Animated avatar support when....**
-- Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time that is also being affected by Cold Boots with the cost of not supporting animated avatars. This might change in the future hopefully.
+- Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time that is also being affected by Cold Boots with the cost of not supporting animated avatars. The dillemmas associated with adding animated avatar:
+  1. Adding animated avatars without image optimization reaches payload limit for functions.
+  2. Adding animated avatars with image optimization increases execution time and function size due to additional package causing timeouts.
 
 2. **Cold Boot and Github CDN timeouts**
 - Cold boots may cause image loading or rendering timeouts through github's cdn proxy which has a time limit on serving content from the origin. Subsequent requests might return a stale response while revalidating the cache to serve the most recent content. 
