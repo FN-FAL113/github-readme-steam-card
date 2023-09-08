@@ -24,6 +24,7 @@
 
 <p align="center">
     <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110"/>
+    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110&show_recent_game_bg=false"/>
 </p>
 
 ## Usage
