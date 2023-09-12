@@ -24,7 +24,7 @@
 
 <p align="center">
     <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110"/>
-    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110&show_recent_game_bg=false"/>
+    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198038294255"/>
 </p>
 
 ## Usage
@@ -56,7 +56,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 </p>
 
 ```md
-Default if current game bg option is not stated
+Defaults to true if not explicitly set
 https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true
 ```
 
@@ -73,7 +73,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 </p>
 
 ```md
-Default if last game bg option is not stated
+Defaults to true if not explicitly set
 https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true
 ```
 
