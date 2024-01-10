@@ -1,15 +1,18 @@
-const express = require('express')
+import express from 'express';
 const app = express()
 
+import dotenv from 'dotenv';
+dotenv.config()
+
 const helmet = require('helmet')
-const cors = require('cors')
+import cors from 'cors';
 
-require('dotenv').config()
+// router
+import steamPlayerStatusRouter from './routes/steam-player-status';
 
-const steamPlayerStatusRouter = require('./routes/steam-player-status.js')
-
-const notFoundMiddleware = require('./middleware/not-found')
-const errorHandler = require('./middleware/error-handler')
+// middlewares
+import notFoundMiddleware from './middleware/not-found';
+import errorHandler from './middleware/error-handler';
 
 app.set('trust proxy', 1)
 
@@ -31,7 +34,7 @@ app.use(steamPlayerStatusRouter)
 app.use(notFoundMiddleware)
 app.use(errorHandler)
 
-const port = process.env.PORT || 5000
+const port: number | string = process.env.PORT || 5000
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
 
