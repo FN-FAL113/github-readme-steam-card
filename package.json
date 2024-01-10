@@ -4,8 +4,9 @@
   "description": "A dynamically generated steam status for your github readme",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon app.js"
+    "build": "npx tsc",
+    "start": "node ./dist/index.js",
+    "dev": "nodemon index.ts"
   },
   "keywords": [
     "github-readme-steam-status",
@@ -33,5 +34,11 @@
     "express-async-errors": "^3.1.1",
     "helmet": "^7.0.0",
     "http-status-codes": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.8",
+    "typescript": "^5.3.3"
   }
 }

@@ -1,72 +1,82 @@
-const { readFile } = require('fs').promises
-const { join } = require('path')
-const NotFoundError = require('../errors/not-found')
-const axios = require('axios');
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
+import axios from 'axios';
+import { NextFunction, Request, Response } from 'express';
+import { RequestQueryParams } from '../types/request';
+import { 
+    AvatarFrameData,
+    PlayerOwnedGameData,
+    PlayerSummaryData,
+    ProfileBackgroundData,
+    SteamApiPlayerOwnedGamesData, 
+    SteamApiPlayerSummariesData, 
+    SteamPlayerEquippedProfileItemsData 
+} from '../types/steam';
+import { SvgData, SvgGameBackgroundMetadata } from '../types/misc';
+
+const NotFoundError = require('../errors/not-found')
 
 /**
  * 
- * @param {Express.Request} req express request object
- * @param {Express.Response} res express response object
- * @param {Express.NextFunction} next express middleware function
+ * @param req express request object
+ * @param res express response object
+ * @param next express middleware function
  */
-const getStatus = async (req, res, next) => {
-    const { steamid, show_recent_game_bg, show_in_game_bg } = req.query;
+const getStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { query: { steamid, show_recent_game_bg, show_in_game_bg } } = req as RequestQueryParams
     
     // conditionals for displaying recent or in game background
-    const showRecentGameBg = show_recent_game_bg != undefined ? show_recent_game_bg === 'true' : true 
-    const showInGameBg = show_in_game_bg != undefined ? show_in_game_bg === 'true' : true
+    const showRecentGameBg: boolean = show_recent_game_bg != undefined ? show_recent_game_bg === 'true' : true 
+    const showInGameBg: boolean = show_in_game_bg != undefined ? show_in_game_bg === 'true' : true
     
     // steam api user data url
-    const userUrl = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
+    const userUrl: string = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
     // steam api user game data url
-    const ownedGamesUrl = `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true&include_played_free_games=true`
+    const ownedGamesUrl: string = `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true&include_played_free_games=true`
     // steam api user equipped profile items url
-    const equippedProfileItemsUrl = `https://api.steampowered.com/IPlayerService/GetProfileItemsEquipped/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
+    const equippedProfileItemsUrl: string = `https://api.steampowered.com/IPlayerService/GetProfileItemsEquipped/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
 
     try {
-        const getUserData = await axios.get(userUrl)
-        const userData = getUserData.data.response.players[0]
+        const getUserData: SteamApiPlayerSummariesData = await axios.get(userUrl)
+        const userData: PlayerSummaryData = getUserData.data.response.players[0]
 
-        if (userData) {
-            const getLastGameData = await axios.get(ownedGamesUrl)
-            const ownedGamesData = getLastGameData.data.response.games
+        if(userData) {
+            const getOwnedGamesData: SteamApiPlayerOwnedGamesData = await axios.get(ownedGamesUrl)
+            const ownedGamesData: PlayerOwnedGameData[] = getOwnedGamesData.data.response.games
 
-            const equippedProfileItems = await axios.get(equippedProfileItemsUrl)
-            const profileBackgroundData = equippedProfileItems.data.response.profile_background
-            const avatarFrameData = equippedProfileItems.data.response.avatar_frame
+            const equippedProfileItems: SteamPlayerEquippedProfileItemsData = await axios.get(equippedProfileItemsUrl)
+            const profileBackgroundData: ProfileBackgroundData | {} = equippedProfileItems.data.response.profile_background
+            const avatarFrameData: AvatarFrameData | {} = equippedProfileItems.data.response.avatar_frame
 
-            let user_status = null
+            let user_status: { status: string, statusColor: string } | null = null
             
             // check user status to initialize user status data
             if(userData.personastate === 1) {
                 user_status = { status: 'Online', statusColor: '#57cbde' }
             } else if (userData.personastate === 2) {
-                user_status = 'Busy'
+                user_status = { status: 'Busy', statusColor: '#57cbde' }
             } else if (userData.personastate === 3) {
                 user_status = { status: 'Away', statusColor: '#57cbde' }
             } else {
                 user_status = { status: 'Offline', statusColor: '#898989' }
             }        
        
-            const currentGame = userData.gameextrainfo ? userData : null
-            const recentGame = ownedGamesData ? getRecentlyPlayedGameData(ownedGamesData) : null 
-            const profileBg = Object.keys(profileBackgroundData).length != 0 ? profileBackgroundData : null 
-            const avatarFrame = Object.keys(avatarFrameData).length != 0 ? avatarFrameData : null
-            const avatarBase64 = await getUrlMediaEncoded(userData.avatarfull, 'base64')
+            const recentGame: PlayerOwnedGameData | null = ownedGamesData ? getRecentlyPlayedGameData(ownedGamesData) : null 
+            const profileBg: ProfileBackgroundData | {} | null = Object.keys(profileBackgroundData).length != 0 ? profileBackgroundData : null 
+            const avatarFrame: AvatarFrameData | {} | null = Object.keys(avatarFrameData).length != 0 ? avatarFrameData : null
+            const avatarBase64: string | ArrayBuffer | undefined = await getUrlMediaEncoded(userData.avatarfull, 'base64')
             
-            const fetchedData = {
-                name: userData.personaname,
-                id: userData.steamid,
-                user_status: user_status,
-                avatarBase64: avatarBase64,
-                profileBg: profileBg,
-                avatarFrame: avatarFrame,
-                currentGame: currentGame,
-                recentGame: recentGame,
+            const svgData: SvgData = {
+                userData,
+                user_status,
+                recentGame,
+                profileBg,
+                avatarFrame,
+                avatarBase64,
             }
         
-            const svg = await initSvg(fetchedData, showRecentGameBg, showInGameBg)
+            const svg = await initSvg(svgData, showRecentGameBg, showInGameBg)
             
             // serve a stale cache response while revalidating cache content for subsequent requests
             res.set('Cache-Control', 's-maxage=1, stale-while-revalidate')
@@ -81,12 +91,13 @@ const getStatus = async (req, res, next) => {
 }
 
 /**
- * Process array of object to retrieve recent game data
- * @param {array<Object>} gamesArr array of game objects with data props
- * @returns {Object | null} the object for recent game
+ * process array of object to retrieve recent game data
+ * 
+ * @param gamesArr array of game objects with data props
+ * @returns the object for recent game
  */
-function getRecentlyPlayedGameData(gamesArr){
-    let recentGameDataObj = null
+function getRecentlyPlayedGameData(gamesArr: PlayerOwnedGameData[]): PlayerOwnedGameData | null {
+    let recentGameDataObj: PlayerOwnedGameData | null = null
 
     // get recent game played by comparing time last played
     for (const gameDataObj of gamesArr) {
@@ -101,57 +112,66 @@ function getRecentlyPlayedGameData(gamesArr){
 }
 
 /**
- * Initialize and create svg markdown based from param data
- * @param {Object} fetchedData object with data needed for initializing svg
- * @param {boolean} showRecentGameBg show recent game background, defaults to true
- * @param {boolean} showInGameBg show ingame background, defaults to true
- * @returns {string} svg text markdown
+ * initialize and create svg markdown based from param data
+ * 
+ * @param svgData object with data needed for initializing svg
+ * @param showRecentGameBg show recent game background, defaults to true
+ * @param showInGameBg show ingame background, defaults to true
+ * @returns svg text markdown
  */
-async function initSvg(fetchedData, showRecentGameBg, showInGameBg) {
+async function initSvg(svgData: SvgData, showRecentGameBg: boolean, showInGameBg: boolean): Promise<string> {
     // user status (name and font color)
-    const status = fetchedData.user_status.status
-    const statusColor = fetchedData.user_status.statusColor
+    const status: string = svgData.user_status.status
+    const statusColor: string = svgData.user_status.statusColor
     
-    // formatted user/game name, defaults to null if json data is empty
-    const userName = fetchedData.name.length > 20 ? fetchedData.name.slice(0, 16) + '...' : fetchedData.name
+    const username: string = svgData.userData.personaname.length > 20 ? svgData.userData.personaname.slice(0, 16) + '...' : svgData.userData.personaname
     
-    const InGameName = fetchedData.currentGame ? 
-            fetchedData.currentGame.gameextrainfo.length > 32 ? 
-                fetchedData.currentGame.gameextrainfo.slice(0, 28) + '...' 
+    const InGameName: string | null = svgData.userData?.gameextrainfo ? 
+            svgData.userData?.gameextrainfo.length > 32 ? 
+                svgData.userData?.gameextrainfo.slice(0, 28) + '...' 
             :   
-                fetchedData.currentGame.gameextrainfo 
+                svgData.userData?.gameextrainfo 
         : null
     
-    const recentGameName = fetchedData.recentGame ? 
-            fetchedData.recentGame.name.length > 32 ? 
-                fetchedData.recentGame.name.slice(0, 28) + '...' 
+    const recentGameName: string | null = svgData?.recentGame ? 
+            svgData.recentGame.name.length > 32 ? 
+                svgData.recentGame.name.slice(0, 28) + '...' 
             : 
-                fetchedData.recentGame.name 
+                svgData.recentGame.name 
         : null
     
     
-    let gameBgMetadata = null
+    let gameBgMetadata: SvgGameBackgroundMetadata;
+
     if(InGameName && showInGameBg) {
         // if in game data and showIngameBg param is true then display game background else default to steam logo        
-        gameBgMetadata = [await getUrlMediaEncoded(setAndGetGameBgUrl(fetchedData.currentGame.gameid), 'base64'), '283', '-10', '285px', '210px']
-    } else if(recentGameName && showRecentGameBg) {
+        gameBgMetadata = [await getUrlMediaEncoded(setAndGetGameBgUrl(svgData.userData.gameid as string), 'base64'), '276', '-10', '285px', '210px']
+    } else if(!InGameName && recentGameName && showRecentGameBg) {
         // if recent game data and showRecentgameBg param is true then display game background else default to steam logo
-        gameBgMetadata = [await getUrlMediaEncoded(setAndGetGameBgUrl(fetchedData.recentGame.appid), 'base64'), '283', '-10', '285px', '210px']
+        gameBgMetadata = [await getUrlMediaEncoded(setAndGetGameBgUrl(svgData.recentGame!.appid), 'base64'), '276', '-10', '285px', '210px']
     }  else {
         // fallback to steam logo
-        gameBgMetadata = [await getBase64LocalMedia(join('public', 'Steam-Logo-Transparent.png')), '305', '10', '170px', '170px']
+        gameBgMetadata = [await getBase64LocalMedia(join('public', 'Steam-Logo-Transparent.png')), '298', '10', '170px', '170px']
     } 
     
     // profile background
-    let profileBgBase64 = null;
-    if(fetchedData?.profileBg?.image_large) {
-        profileBgBase64 = await getUrlMediaEncoded(setAndGetPublicImageUrl(fetchedData.profileBg.image_large), 'base64')
+    let profileBgBase64: string | ArrayBuffer | undefined;
+
+    if(svgData?.profileBg && 'image_large' in svgData.profileBg!) {
+        const profileBackgroundData = svgData.profileBg as ProfileBackgroundData
+
+        profileBgBase64 = await getUrlMediaEncoded(setAndGetPublicImageUrl(profileBackgroundData.image_large), 'base64')
     }
     
-    // avatar frame (animated or non animated)
-    // optimizing Animated PNG not yet supported: https://github.com/lovell/sharp/issues/2375
-    const avatarFrameBase64 = fetchedData?.avatarFrame ?
-        await getUrlMediaEncoded(setAndGetPublicImageUrl(fetchedData.avatarFrame.image_small), 'base64') : null
+    // avatar frame (animated/non-animated)
+    // optimizing Animated PNG (APNG) not yet supported: https://github.com/lovell/sharp/issues/2375
+    let avatarFrameBase64: string | ArrayBuffer | undefined;
+
+    if(svgData?.avatarFrame && 'image_small' in svgData.avatarFrame!) {
+        const avatarFrameData = svgData.avatarFrame as AvatarFrameData
+
+        avatarFrameBase64 = await getUrlMediaEncoded(setAndGetPublicImageUrl(avatarFrameData.image_small), 'base64')
+    }
     
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
@@ -165,7 +185,7 @@ async function initSvg(fetchedData, showRecentGameBg, showInGameBg) {
                     `
                         <image 
                             href="data:image/jpeg;base64,${profileBgBase64}" 
-                            x="-116"  
+                            x="-124"  
                             y="0"  
                             width="400" 
                             height="200" 
@@ -205,7 +225,7 @@ async function initSvg(fetchedData, showRecentGameBg, showInGameBg) {
                         />
                         <text x="158" y="127" font-size="14" fill="#898989">Last Played</text>
                         <text x="158" y="144" font-size="16" fill="#898989">${recentGameName}</text>
-                        <text x="158" y="162" font-size="14" fill="#898989">${parseInt(fetchedData.recentGame.playtime_forever / 60)} hrs playtime</text>
+                        <text x="158" y="162" font-size="14" fill="#898989">${(svgData.recentGame!.playtime_forever / 60).toFixed(1)} hrs playtime</text>
                     ` : 
                     `
                         <image 
@@ -226,7 +246,7 @@ async function initSvg(fetchedData, showRecentGameBg, showInGameBg) {
                     y="40" 
                     width="125px" 
                     height="125px" 
-                    href="data:image/jpeg;base64,${fetchedData.avatarBase64}"  
+                    href="data:image/jpeg;base64,${svgData.avatarBase64}"  
                 />
 
                 <!-- profile border frame -->
@@ -258,7 +278,7 @@ async function initSvg(fetchedData, showRecentGameBg, showInGameBg) {
                 }
                 
                 <!-- username -->
-                <text x="158" y="62" font-size="20" fill="${statusColor}">${userName}</text>
+                <text x="158" y="62" font-size="20" fill="${statusColor}">${username}</text>
                 
                 <!-- user status -->
                 <text x="420" y="62" font-size="20" fill="${statusColor}">${status}</text>      
@@ -275,11 +295,11 @@ async function initSvg(fetchedData, showRecentGameBg, showInGameBg) {
 
 /**
  * Fetch media from a given url
- * @param {string} url web url (mime type: png, jpeg, gif, webp) 
- * @param {string} encoding encoding to use for response
- * @returns {string | ArrayBuffer} base64 string or array buffer
+ * @param url web url (mime type: png, jpeg, gif, webp) 
+ * @param encoding encoding to use for response
+ * @returns base64 string or array buffer
  */
-async function getUrlMediaEncoded(url, encoding) {
+async function getUrlMediaEncoded(url: string, encoding: string): Promise<string | ArrayBuffer | undefined> {
     try {
         const image = await axios.get(url, {
             responseType: encoding === 'base64' ? 'text' : 'arraybuffer',
@@ -294,12 +314,12 @@ async function getUrlMediaEncoded(url, encoding) {
 
 /**
  * Retrieve local media encoded as base64 string
- * @param {string} path relative path of a media file 
- * @returns {string} base64 string
+ * @param path relative path of a media file 
+ * @returns base64 string
  */
-async function getBase64LocalMedia(path) {
+async function getBase64LocalMedia(path: string): Promise<string | undefined> {
     try {
-        const imgBase64 = await readFile(path, { encoding: 'base64' })
+        const imgBase64: string = await readFile(path, { encoding: 'base64' })
 
         return imgBase64
     } catch (error) {
@@ -312,7 +332,7 @@ async function getBase64LocalMedia(path) {
  * @param {string} path web url path segment/s 
  * @returns {string} formed url
  */
-function setAndGetPublicImageUrl(path) {
+function setAndGetPublicImageUrl(path: string): string {
     return `https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/${path}`
 }
 
@@ -321,10 +341,10 @@ function setAndGetPublicImageUrl(path) {
  * @param {string} path web url path segment
  * @returns {string} formed url
  */
-function setAndGetGameBgUrl(gameId) {
+function setAndGetGameBgUrl(gameId: string | number): string {
     return `https://cdn.cloudflare.steamstatic.com/steam/apps/${gameId}/header.jpg`
 }
 
-module.exports = {
+export {
     getStatus
 }
