@@ -11,8 +11,8 @@ export interface SteamApiPlayerSummariesData extends AxiosResponse {
 
 export interface PlayerSummaryData {
     steamid: number
-    communityvisibilitystate: 3
-    profilestate: 1
+    communityvisibilitystate: number
+    profilestate: number
     personaname: string
     profileurl: string
     avatar: string
@@ -49,7 +49,7 @@ export interface PlayerOwnedGameData {
     playtime_mac_forever: number
     playtime_linux_forever: number
     rtime_last_played: number
-    content_descriptorids: Array<number>
+    content_descriptorids: number[]
     playtime_disconnected: number
 }
 //
@@ -61,14 +61,15 @@ export interface SteamPlayerEquippedProfileItemsData extends AxiosResponse {
             profile_background: ProfileBackgroundData | {}
             mini_profile_background: object // mini-profile is not utilized
             avatar_frame: AvatarFrameData | {}
-            animated_avatar: AnimatedAvatarData | {}
+            // will add support for this soon, only use animated avatar or frame (cannot enable both due to payload/timout limitations with serverless)
+            animated_avatar: AnimatedAvatarData | {} 
             profile_modifier: {}
             steam_deck_keyboard_skin: {}
         }
     }
 }
 
-export interface ProfileBackgroundData {
+export interface EquippedProfileItemBaseData {
     communityitemid: number
     image_large: string
     name: string
@@ -77,33 +78,20 @@ export interface ProfileBackgroundData {
     appid: number
     item_type: number
     item_class: number
+}
+
+export interface ProfileBackgroundData extends EquippedProfileItemBaseData {
     movie_webm: string
     movie_mp4: string
     movie_webm_small: string
     movie_mp4_small: string
 }
 
-export interface AvatarFrameData {
-    communityitemid: number
+export interface AvatarFrameData extends EquippedProfileItemBaseData {
     image_small: string
-    image_large: string
-    name: string
-    item_title: string
-    item_description: string
-    appid: number
-    item_type: number
-    item_class: number
 }
 
-export interface AnimatedAvatarData {
-    communityitemid: number
+export interface AnimatedAvatarData extends EquippedProfileItemBaseData {
     image_small: string
-    image_large: string
-    name: string
-    item_title: string
-    item_description: string
-    appid: number
-    item_type: number
-    item_class: number
 }
 //
