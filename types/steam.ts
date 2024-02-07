@@ -41,16 +41,18 @@ export interface SteamApiPlayerOwnedGamesData extends AxiosResponse {
 }
 
 export interface PlayerOwnedGameData {
+    // optional fields can be accessed by using own steam api key
     appid: number
     name: string
     playtime_forever: number
     img_icon_url: string
-    playtime_windows_forever: number
-    playtime_mac_forever: number
-    playtime_linux_forever: number
-    rtime_last_played: number
-    content_descriptorids: number[]
-    playtime_disconnected: number
+    has_community_visible_stats?: boolean
+    playtime_windows_forever?: number
+    playtime_mac_forever?: number
+    playtime_linux_forever?: number
+    rtime_last_played?: number
+    content_descriptorids?: number[]
+    playtime_disconnected?: number
 }
 //
 
