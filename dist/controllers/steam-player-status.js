@@ -85,19 +85,24 @@ const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 });
 exports.getStatus = getStatus;
 /**
- * process array of object to retrieve recent game data
+ * retrieves currently played game from an array of owned game data objects
  *
- * @param gamesArr array of game objects with data props
- * @returns the object for recent game
+ * @param gamesArr array of owned game data objects
+ * @returns the recently played game data object
  */
 function getRecentlyPlayedGameData(gamesArr) {
+    var _a, _b;
     let recentGameDataObj = null;
+    // validate if user owned game playtime data can be accessed
+    if (!((_a = gamesArr[0]) === null || _a === void 0 ? void 0 : _a.rtime_last_played) && !((_b = gamesArr[1]) === null || _b === void 0 ? void 0 : _b.rtime_last_played)) {
+        return null;
+    }
     // get recent game played by comparing time last played
     for (const gameDataObj of gamesArr) {
-        if (!recentGameDataObj) {
+        if (!recentGameDataObj) { // initialize recent game data arr with first owned game data object
             recentGameDataObj = gameDataObj;
         }
-        else if (gameDataObj.rtime_last_played > recentGameDataObj.rtime_last_played) {
+        else if (gameDataObj.rtime_last_played >= recentGameDataObj.rtime_last_played) {
             recentGameDataObj = gameDataObj;
         }
     }
@@ -172,7 +177,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                             width="400" 
                             height="200" 
                             preserveAspectRatio="none" 
-                            opacity="0.525" 
+                            opacity="0.410" 
                         />
                     `
             : ""}
@@ -187,10 +192,10 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                             width="${gameBgMetadata[3]}" 
                             height="${gameBgMetadata[4]}" 
                             preserveAspectRatio="none" 
-                            opacity="0.325" 
+                            opacity="0.310" 
                         />
-                        <text x="158" y="144" font-size="14" fill="#a3cf06">In-Game</text>
-                        <text x="158" y="161" font-size="16" fill="#a3cf06">${InGameName}</text>
+                        <text x="159" y="144" font-size="14" fill="#a3cf06">In-Game</text>
+                        <text x="159" y="161" font-size="16" fill="#a3cf06">${InGameName}</text>
                     ` :
             recentGameName ?
                 `
@@ -201,11 +206,11 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                             width="${gameBgMetadata[3]}" 
                             height="${gameBgMetadata[4]}" 
                             preserveAspectRatio="none" 
-                            opacity="0.325"
+                            opacity="0.310"
                         />
-                        <text x="158" y="127" font-size="14" fill="#898989">Last Played</text>
-                        <text x="158" y="144" font-size="16" fill="#898989">${recentGameName}</text>
-                        <text x="158" y="162" font-size="14" fill="#898989">${(svgData.recentGame.playtime_forever / 60).toFixed(1)} hrs playtime</text>
+                        <text x="159" y="127" font-size="14" fill="#898989">Last Played</text>
+                        <text x="159" y="144" font-size="16" fill="#898989">${recentGameName}</text>
+                        <text x="159" y="162" font-size="14" fill="#898989">${(svgData.recentGame.playtime_forever / 60).toFixed(1)} hrs playtime</text>
                     ` :
                 `
                         <image 
@@ -215,7 +220,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                             width="${gameBgMetadata[3]}" 
                             height="${gameBgMetadata[4]}" 
                             preserveAspectRatio="none" 
-                            opacity="0.325"
+                            opacity="0.310"
                         />
                     `}
                   
@@ -255,7 +260,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                     `}
                 
                 <!-- username -->
-                <text x="158" y="62" font-size="20" fill="${statusColor}">${username}</text>
+                <text x="159" y="62" font-size="20" fill="${statusColor}">${username}</text>
                 
                 <!-- user status -->
                 <text x="420" y="62" font-size="20" fill="${statusColor}">${status}</text>      

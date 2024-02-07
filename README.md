@@ -87,12 +87,13 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 ```
 
 ## Deploy your own Vercel instance
+The last or previously played game **will only show** if you create your own Vercel instance with your Steam account API key.
 
-Create an account on vercel if you don't have yet
+Generate your steam api key by going to [Steam Web API Docs](https://steamcommunity.com/dev) and supply the environment variable ```STEAM_API_KEY``` with your own.
 
-Generate your steam api key by going to [Steam Web API Docs](https://steamcommunity.com/dev) and supply the environment variable ```STEAM_API_KEY``` with your own
+**Fork** this project and deploy it to your own vercel instance or click the deploy button below which does most of the stuffs for you.
 
-You may fork this project and deploy it to vercel or click the deploy button below which does most of the stuffs for you
+Create an account on vercel if you don't have yet.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
@@ -110,7 +111,12 @@ This project or its author are not affiliated, associated, authorized, endorsed 
 
 ## :sparkling_heart: Support the project/dev
 
-Open-sourcing projects are great with all the effort and time I gave without asking for donations. However there are some ways you can show your support to me:
+Open-sourcing projects are great with all the effort and time I dedicate. However there are some ways you can show your support to me:
 
-- Giving a star or sharing this project to gamer devs out there
-- Pr's are welcome and highly appreciated if you think you can make this project better :)
+- Giving a star or sharing this project to gamer devs out there.
+- Pr's are welcome and highly appreciated if you think you can make this project better.
+- Donations are welcome:
+<br/>
+<a href="https://www.paypal.com/paypalme/ameliaOrbeta" target=_blank>
+  <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="32%" />
+</a>
