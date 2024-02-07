@@ -108,7 +108,7 @@ function getRecentlyPlayedGameData(gamesArr: PlayerOwnedGameData[]): PlayerOwned
     for (const gameDataObj of gamesArr) {
         if(!recentGameDataObj) { // initialize recent game data arr with first owned game data object
             recentGameDataObj = gameDataObj
-        } else if(gameDataObj.rtime_last_played! >= recentGameDataObj.rtime_last_played!) {
+        } else if(gameDataObj.rtime_last_played! > recentGameDataObj.rtime_last_played!) {
             recentGameDataObj = gameDataObj
         }
     }
