@@ -4,7 +4,7 @@
   "description": "A dynamically generated steam status for your github readme",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "del dist /q | npx tsc && xcopy public\\* dist\\public\\",
     "start": "node ./dist/index.js",
     "dev": "nodemon index.ts"
   },

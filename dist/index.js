@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const app = (0, express_1.default)();
 const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-const helmet = require('helmet');
 const cors_1 = __importDefault(require("cors"));
+const helmet = require('helmet');
+const app = (0, express_1.default)();
+dotenv_1.default.config();
 // router
 const steam_player_status_1 = __importDefault(require("./routes/steam-player-status"));
 // middlewares

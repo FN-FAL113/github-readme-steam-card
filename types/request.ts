@@ -6,5 +6,6 @@ export interface RequestQueryParams extends Request {
         steamid: string;
         show_recent_game_bg?: string;
         show_in_game_bg?: string;
+        animated_avatar?: string;
     };
 }
