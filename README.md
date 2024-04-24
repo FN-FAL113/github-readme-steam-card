@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Github Readme Steam Status</h1>
   <p align="center">:video_game: A dynamically generated steam status for your github readme</p>
-  <p align="center">Animated avatar frames supported!</p>
+  <p align="center">Animated avatar or frames supported!</p>
 </p>
 </p>
 <p align="center">
@@ -24,7 +24,7 @@
 
 <p align="center">
     <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110"/>
-    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198038294255"/>
+    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110&animated_avatar=true"/>
 </p>
 
 ## Usage
@@ -52,16 +52,16 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/687e6f4f-0228-461a-9e62-bf032373b373"/>
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/5dd9d19a-574f-4e44-a9e3-cb1a18984dc3"/>
 </p>
 
 ```md
-Defaults to true if not explicitly set
+Default
 https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/210c475e-1b3f-4b25-8419-0de192908171"/>
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/8aac2658-2168-498e-a205-dd3b72b115a8"/>
 </p>
 
 ```md
@@ -69,16 +69,25 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/eb64d409-5475-4428-aebe-8828a5e3131c"/>
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/060050ff-d898-426f-8a2b-10cb454a3ea5"/>
 </p>
 
 ```md
-Defaults to true if not explicitly set
+Default
 https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true
 ```
 
 <p align="center">
-  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/5a3bc100-3e9a-47d3-9752-95c1c93246ca"/>
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/535aba84-c82d-4200-9f1d-dabefffee2c2"/>
+</p>
+
+```md
+Default: false ()
+https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true  
+```
+
+<p align="center">
+  <img align="center" src="https://github.com/FN-FAL113/github-readme-steam-status/assets/88238718/eb6dbbc1-5362-40d2-a095-09a79f873e99"/>
 </p>
 
 You may combine these options together

@@ -125,11 +125,11 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
         let gameBgMetadata;
         if (inGameName && showInGameBg) {
             // if in game data and showIngameBg param is true then display game background else default to steam logo        
-            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.userData.gameid), 'base64'), '350', '80', '128px', '128px'];
+            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.userData.gameid), 'base64'), '350', '68', '128px', '128px'];
         }
         else if (!inGameName && recentGameName && showRecentGameBg) {
             // if recent game data and showRecentgameBg param is true then display game background else default to steam logo
-            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.recentGame.appid), 'base64'), '350', '75', '128px', '128px'];
+            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.recentGame.appid), 'base64'), '350', '68', '128px', '128px'];
         }
         else {
             // fallback to steam logo
@@ -179,8 +179,8 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
                             width="${gameBgMetadata[3]}" 
                             height="${gameBgMetadata[4]}"
                         />
-                        <text x="160" y="144" font-size="12" fill="#a3cf06" class="game-header-status">In-Game</text>
-                        <text x="160" y="161" font-size="16" fill="#a3cf06">${inGameName}</text>
+                        <text x="160" y="130" font-size="12" fill="#a3cf06" class="game-header-status">In-Game</text>
+                        <text x="160" y="150" font-size="16" fill="#a3cf06">${inGameName}</text>
                     ` :
             recentGameName ?
                 `
