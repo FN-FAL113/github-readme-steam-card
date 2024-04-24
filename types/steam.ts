@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 // Player Summaries Data
-export interface SteamApiPlayerSummariesData extends AxiosResponse {
+export interface SteamPlayerSummariesData extends AxiosResponse {
     data: { // axios prop
         response: { // steam api root prop
             players: PlayerSummaryData[]
@@ -20,7 +20,7 @@ export interface PlayerSummaryData {
     avatarfull: string
     avatarhash: string
     lastlogoff: number
-    personastate: 1 | 2 | 3
+    personastate: 1 | 2 | 3 // literals
     realname: string
     primaryclanid: number
     timecreated: string
@@ -31,7 +31,7 @@ export interface PlayerSummaryData {
 //
 
 // Player Owned Games Data
-export interface SteamApiPlayerOwnedGamesData extends AxiosResponse {
+export interface SteamPlayerOwnedGamesData extends AxiosResponse {
     data: { // axios prop
         response: { // steam api root prop
             game_count: number
@@ -96,4 +96,3 @@ export interface AvatarFrameData extends EquippedProfileItemBaseData {
 export interface AnimatedAvatarData extends EquippedProfileItemBaseData {
     image_small: string
 }
-//

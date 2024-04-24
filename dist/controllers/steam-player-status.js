@@ -17,14 +17,8 @@ const promises_1 = require("fs/promises");
 const path_1 = require("path");
 const axios_1 = __importDefault(require("axios"));
 const NotFoundError = require('../errors/not-found');
-/**
- *
- * @param req express request object
- * @param res express response object
- * @param next express middleware function
- */
 const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { query: { steamid, show_recent_game_bg, show_in_game_bg } } = req;
+    const { query: { steamid, show_recent_game_bg, show_in_game_bg, animated_avatar } } = req;
     // conditionals for displaying recent or in game background
     const showRecentGameBg = show_recent_game_bg != undefined ? show_recent_game_bg === 'true' : true;
     const showInGameBg = show_in_game_bg != undefined ? show_in_game_bg === 'true' : true;
@@ -41,7 +35,7 @@ const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             const getOwnedGamesData = yield axios_1.default.get(ownedGamesUrl);
             const ownedGamesData = getOwnedGamesData.data.response.games;
             const equippedProfileItems = yield axios_1.default.get(equippedProfileItemsUrl);
-            const profileBackgroundData = equippedProfileItems.data.response.profile_background;
+            const profileBgData = equippedProfileItems.data.response.profile_background;
             const avatarFrameData = equippedProfileItems.data.response.avatar_frame;
             let user_status = null;
             // check user status to initialize user status data
@@ -58,18 +52,16 @@ const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 user_status = { status: 'Offline', statusColor: '#898989' };
             }
             const recentGame = ownedGamesData ? getRecentlyPlayedGameData(ownedGamesData) : null;
-            const profileBg = Object.keys(profileBackgroundData).length != 0 ? profileBackgroundData : null;
-            const avatarFrame = Object.keys(avatarFrameData).length != 0 ? avatarFrameData : null;
-            const avatarBase64 = yield getUrlMediaEncoded(userData.avatarfull, 'base64');
+            const avatarBase64 = yield getAvatar(userData, equippedProfileItems, animated_avatar);
             const svgData = {
                 userData,
                 user_status,
                 recentGame,
-                profileBg,
-                avatarFrame,
+                profileBgData,
+                avatarFrameData,
                 avatarBase64,
             };
-            const svg = yield initSvg(svgData, showRecentGameBg, showInGameBg);
+            const svg = yield initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar);
             // serve a stale cache response while revalidating cache content for subsequent requests
             res.set('Cache-Control', 's-maxage=1, stale-while-revalidate');
             res.set('Content-Type', 'image/svg+xml');
@@ -84,12 +76,15 @@ const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getStatus = getStatus;
-/**
- * retrieves currently played game from an array of owned game data objects
- *
- * @param gamesArr array of owned game data objects
- * @returns the recently played game data object
- */
+// check if user wants to use animated avatar if exists else fallback to non-animated avatar
+function getAvatar(userData, equippedProfileItems, animated_avatar) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (animated_avatar == "true" && 'image_small' in equippedProfileItems.data.response.animated_avatar) {
+            return yield getUrlMediaEncoded(setAndGetPublicImageUrl(equippedProfileItems.data.response.animated_avatar.image_small), 'base64');
+        }
+        return yield getUrlMediaEncoded(userData.avatarfull, 'base64');
+    });
+}
 function getRecentlyPlayedGameData(gamesArr) {
     var _a, _b;
     let recentGameDataObj = null;
@@ -108,94 +103,84 @@ function getRecentlyPlayedGameData(gamesArr) {
     }
     return recentGameDataObj;
 }
-/**
- * initialize and create svg markdown based from param data
- *
- * @param svgData object with data needed for initializing svg
- * @param showRecentGameBg show recent game background, defaults to true
- * @param showInGameBg show ingame background, defaults to true
- * @returns svg text markdown
- */
-function initSvg(svgData, showRecentGameBg, showInGameBg) {
+function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
     var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
         // user status (name and font color)
         const status = svgData.user_status.status;
         const statusColor = svgData.user_status.statusColor;
         const username = svgData.userData.personaname.length > 20 ? svgData.userData.personaname.slice(0, 16) + '...' : svgData.userData.personaname;
-        const InGameName = ((_a = svgData.userData) === null || _a === void 0 ? void 0 : _a.gameextrainfo) ?
+        const inGameName = ((_a = svgData.userData) === null || _a === void 0 ? void 0 : _a.gameextrainfo) ?
             ((_b = svgData.userData) === null || _b === void 0 ? void 0 : _b.gameextrainfo.length) > 32 ?
-                ((_c = svgData.userData) === null || _c === void 0 ? void 0 : _c.gameextrainfo.slice(0, 28)) + '...'
+                ((_c = svgData.userData) === null || _c === void 0 ? void 0 : _c.gameextrainfo.slice(0, 26)) + '...'
                 :
                     (_d = svgData.userData) === null || _d === void 0 ? void 0 : _d.gameextrainfo
             : null;
         const recentGameName = (svgData === null || svgData === void 0 ? void 0 : svgData.recentGame) ?
             svgData.recentGame.name.length > 32 ?
-                svgData.recentGame.name.slice(0, 28) + '...'
+                svgData.recentGame.name.slice(0, 26) + '...'
                 :
                     svgData.recentGame.name
             : null;
         let gameBgMetadata;
-        if (InGameName && showInGameBg) {
+        if (inGameName && showInGameBg) {
             // if in game data and showIngameBg param is true then display game background else default to steam logo        
-            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.userData.gameid), 'base64'), '276', '-10', '285px', '210px'];
+            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.userData.gameid), 'base64'), '350', '68', '128px', '128px'];
         }
-        else if (!InGameName && recentGameName && showRecentGameBg) {
+        else if (!inGameName && recentGameName && showRecentGameBg) {
             // if recent game data and showRecentgameBg param is true then display game background else default to steam logo
-            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.recentGame.appid), 'base64'), '276', '-10', '285px', '210px'];
+            gameBgMetadata = [yield getUrlMediaEncoded(setAndGetGameBgUrl(svgData.recentGame.appid), 'base64'), '350', '68', '128px', '128px'];
         }
         else {
             // fallback to steam logo
-            gameBgMetadata = [yield getBase64LocalMedia((0, path_1.join)('public', 'Steam-Logo-Transparent.png')), '298', '10', '170px', '170px'];
+            gameBgMetadata = [yield getBase64LocalMedia((0, path_1.join)('public', 'Steam-Logo-Transparent.png')), '414', '100', '64px', '64px'];
         }
         // profile background
         let profileBgBase64;
-        if ((svgData === null || svgData === void 0 ? void 0 : svgData.profileBg) && 'image_large' in svgData.profileBg) {
-            const profileBackgroundData = svgData.profileBg;
-            profileBgBase64 = yield getUrlMediaEncoded(setAndGetPublicImageUrl(profileBackgroundData.image_large), 'base64');
+        if ('image_large' in svgData.profileBgData) {
+            profileBgBase64 = yield getUrlMediaEncoded(setAndGetPublicImageUrl(svgData.profileBgData.image_large), 'base64');
         }
         // avatar frame (animated/non-animated)
         // optimizing Animated PNG (APNG) not yet supported: https://github.com/lovell/sharp/issues/2375
         let avatarFrameBase64;
-        if ((svgData === null || svgData === void 0 ? void 0 : svgData.avatarFrame) && 'image_small' in svgData.avatarFrame) {
-            const avatarFrameData = svgData.avatarFrame;
-            avatarFrameBase64 = yield getUrlMediaEncoded(setAndGetPublicImageUrl(avatarFrameData.image_small), 'base64');
+        if ('image_small' in svgData.avatarFrameData) {
+            const url = animated_avatar == "true" ? svgData.avatarFrameData.image_large : svgData.avatarFrameData.image_small;
+            avatarFrameBase64 = yield getUrlMediaEncoded(setAndGetPublicImageUrl(url), 'base64');
         }
         return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
             <g>
                 <!-- main box container -->
-                <rect width="500" height="200" fill="#1b2838" />    
+                <rect width="500" height="200" fill="#1b2838" rx="8" ry="8" />    
                 
                 <!-- profile background -->
                 ${profileBgBase64 ?
             `
                         <image 
                             href="data:image/jpeg;base64,${profileBgBase64}" 
-                            x="-124"  
+                            x="0"  
                             y="0"  
-                            width="400" 
+                            width="500" 
                             height="200" 
                             preserveAspectRatio="none" 
-                            opacity="0.410" 
+                            opacity="0.4" 
                         />
                     `
-            : ""}
+            :
+                ""}
 
                 <!-- game name and background image, fallback to steam logo -->
-                ${InGameName ?
+                ${inGameName ?
             `
                         <image 
                             href="data:image/jpeg;base64,${gameBgMetadata[0]}" 
                             x="${gameBgMetadata[1]}"  
                             y="${gameBgMetadata[2]}"  
                             width="${gameBgMetadata[3]}" 
-                            height="${gameBgMetadata[4]}" 
-                            preserveAspectRatio="none" 
-                            opacity="0.310" 
+                            height="${gameBgMetadata[4]}"
                         />
-                        <text x="159" y="144" font-size="14" fill="#a3cf06">In-Game</text>
-                        <text x="159" y="161" font-size="16" fill="#a3cf06">${InGameName}</text>
+                        <text x="160" y="130" font-size="12" fill="#a3cf06" class="game-header-status">In-Game</text>
+                        <text x="160" y="150" font-size="16" fill="#a3cf06">${inGameName}</text>
                     ` :
             recentGameName ?
                 `
@@ -205,12 +190,10 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                             y="${gameBgMetadata[2]}"  
                             width="${gameBgMetadata[3]}" 
                             height="${gameBgMetadata[4]}" 
-                            preserveAspectRatio="none" 
-                            opacity="0.310"
                         />
-                        <text x="159" y="127" font-size="14" fill="#898989">Last Played</text>
-                        <text x="159" y="144" font-size="16" fill="#898989">${recentGameName}</text>
-                        <text x="159" y="162" font-size="14" fill="#898989">${(svgData.recentGame.playtime_forever / 60).toFixed(1)} hrs playtime</text>
+                        <text x="160" y="120" font-size="12" fill="#898989" class="game-header-status">Last Played</text>
+                        <text x="160" y="140" font-size="14" fill="#898989">${recentGameName}</text>
+                        <text x="160" y="158" font-size="12" fill="#898989">${(svgData.recentGame.playtime_forever / 60).toFixed(1)} hours played</text>
                     ` :
                 `
                         <image 
@@ -218,16 +201,14 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                             x="${gameBgMetadata[1]}"  
                             y="${gameBgMetadata[2]}"  
                             width="${gameBgMetadata[3]}" 
-                            height="${gameBgMetadata[4]}" 
-                            preserveAspectRatio="none" 
-                            opacity="0.310"
+                            height="${gameBgMetadata[4]}"
                         />
                     `}
                   
                 <!-- profile image -->
                 <image 
                     x="20" 
-                    y="40" 
+                    y="36" 
                     width="125px" 
                     height="125px" 
                     href="data:image/jpeg;base64,${svgData.avatarBase64}"  
@@ -238,9 +219,9 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
             `
                         <image 
                             href="data:image/png;base64,${avatarFrameBase64}" 
-                            x="10"  
-                            y="26"  
-                            width="148px" 
+                            x="6"  
+                            y="22"  
+                            width="152px" 
                             height="152px" 
                             preserveAspectRatio="none" 
                         />
@@ -249,38 +230,37 @@ function initSvg(svgData, showRecentGameBg, showInGameBg) {
                 `
                         <rect 
                             x="20"
-                            y="40" 
+                            y="36" 
                             width="125px" 
                             height="125px" 
                             fill="none" 
-                            stroke="${InGameName ? `#a3cf06` : statusColor}" 
+                            stroke="${inGameName ? `#a3cf06` : statusColor}" 
                             stroke-width="3" 
                             ${status == 'Away' ? `stroke-dasharray="3,3"` : ""} 
                         />
                     `}
                 
                 <!-- username -->
-                <text x="159" y="62" font-size="20" fill="${statusColor}">${username}</text>
+                <text x="160" y="56" font-size="16" fill="${statusColor}">${username}</text>
                 
                 <!-- user status -->
-                <text x="420" y="62" font-size="20" fill="${statusColor}">${status}</text>      
+                <text x="430" y="56" font-size="16" fill="${statusColor}">${status}</text>      
             </g>
 
             <style type="text/css">
+                svg {
+                    border-radius: 8px;
+                }
+
                 text { 
                     font-family: Arial, Helvetica, Verdana, sans-serif; 
+                    text-shadow: 1px 2px 4px black;
                 }
             </style>
         </svg> 
    `;
     });
 }
-/**
- * Fetch media from a given url
- * @param url web url (mime type: png, jpeg, gif, webp)
- * @param encoding encoding to use for response
- * @returns base64 string or array buffer
- */
 function getUrlMediaEncoded(url, encoding) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -295,11 +275,6 @@ function getUrlMediaEncoded(url, encoding) {
         }
     });
 }
-/**
- * Retrieve local media encoded as base64 string
- * @param path relative path of a media file
- * @returns base64 string
- */
 function getBase64LocalMedia(path) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

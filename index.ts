@@ -1,11 +1,11 @@
 import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+const helmet = require('helmet')
+
 const app = express()
 
-import dotenv from 'dotenv';
 dotenv.config()
-
-const helmet = require('helmet')
-import cors from 'cors';
 
 // router
 import steamPlayerStatusRouter from './routes/steam-player-status';
