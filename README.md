@@ -24,8 +24,8 @@
 </p>
 
 <p align="center">
-    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110"/>
-    <img src="https://github-readme-steam-status.vercel.app/status/?steamid=76561198085145110&animated_avatar=true"/>
+    <img src="https://github-readme-steam-card.vercel.app/status/?steamid=76561198085145110"/>
+    <img src="https://github-readme-steam-card.vercel.app/status/?steamid=76561198085145110&animated_avatar=true"/>
 </p>
 
 ## Usage
@@ -36,11 +36,11 @@ use your steamid64 as the value for ```?steamid=``` (you may use [steam id finde
 
 display through markup
 ```html
-<img src="https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64 here>"/>
+<img src="https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64 here>"/>
 ```
 or through markdown
 ```md
-![GRSS](https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64 here>)
+![GRSS](https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64 here>)
 ```
 
 ## Available Options
@@ -49,7 +49,7 @@ or through markdown
 -   `show_recent_game_bg` - display recent game banner as partial background, fallback to steam logo if set to false.
 
 ```md
-https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=false
+https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=false
 ```
 
 <p align="center">
@@ -58,7 +58,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 
 ```md
 Default
-https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true
+https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true
 ```
 
 <p align="center">
@@ -66,7 +66,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 </p>
 
 ```md
-https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=false
+https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=false
 ```
 
 <p align="center">
@@ -75,7 +75,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 
 ```md
 Default
-https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true
+https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true
 ```
 
 <p align="center">
@@ -84,7 +84,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 
 ```md
 Default: false (animated avatar only due to payload limit with serverless platforms)
-https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true  
+https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true  
 ```
 
 <p align="center">
@@ -93,7 +93,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 
 You may combine these options together
 ```md
-https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true&show_recent_game_bg=false
+https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true&show_recent_game_bg=false
 ```
 
 ## Deploy your own Vercel instance
