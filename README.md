@@ -96,8 +96,7 @@ You may combine these options together
 https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true&show_recent_game_bg=false
 ```
 
-## Deploy your own Vercel instance
-The last or previously played game **will only show** if you create your own Vercel instance with your Steam account API key.
+## [Deploy your own Vercel instance](#deploy)
 
 Generate your steam api key by going to [Steam Web API Docs](https://steamcommunity.com/dev) and supply the environment variable ```STEAM_API_KEY``` with your own.
 
@@ -115,7 +114,10 @@ Create an account on vercel if you don't have yet.
   3. serverless payload limit is capped at 5mb, animated avatar and frames enabled altogether can have a paylize size of over 5-7mb.
 
 2. **Cold Boot and Github CDN timeouts**
-- Cold boots may cause image loading or rendering timeouts through github's cdn proxy which has a time limit on serving content from the origin. Subsequent requests might return a stale response while revalidating the cache to serve the most recent content. 
+- Cold boots may cause image loading or rendering timeouts through github's cdn proxy which has a time limit on serving content from the origin. Subsequent requests might return a stale response while revalidating the cache to serve the most recent content.
+
+3. **Recently played game not showing**
+- To be able to use this feature, an <a href="#deploy">instance<a/> of the project through vercel with your steam api key must be created by the user. 
 
 ### Disclaimer
 This project or its author are not affiliated, associated, authorized, endorsed by steam, its affiliates or subsidiaries. Images, names and other form of trademark are registered to their respective owners.
