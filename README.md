@@ -1,8 +1,9 @@
 <p align="center">
-  <h1 align="center">Github Readme Steam Status</h1>
-  <p align="center">:video_game: A dynamically generated steam status for your github readme</p>
+  <h1 align="center">Github Readme Steam Card</h1>
+  <p align="center">:video_game: A dynamically generated steam card for your github readme</p>
   <p align="center">Animated avatar or frames supported!</p>
 </p>
+
 </p>
 <p align="center">
   <a href="https://github.com/FN-FAL113/github-readme-steam-status/issues">
@@ -82,7 +83,7 @@ https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&sh
 </p>
 
 ```md
-Default: false ()
+Default: false (animated avatar only due to payload limit with serverless platforms)
 https://github-readme-steam-status.vercel.app/status/?steamid=<SteamID64here>&show_recent_game_bg=true  
 ```
 
@@ -107,10 +108,11 @@ Create an account on vercel if you don't have yet.
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
 ### FAQ
-1. **Animated avatar support when....**
-- Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time that is also being affected by Cold Boots with the cost of not supporting animated avatars. The dillemmas associated with adding animated avatar:
-  1. Adding animated avatars without image optimization reaches payload limit for functions.
-  2. Adding animated avatars with image optimization increases execution time and function size due to additional package causing timeouts.
+1. **Enable animated avatar and frame at the same time**
+- Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time. The dillemmas associated with enabling both animated avatar and frames:
+  1. animated avatars without image optimization reaches payload limit for functions.
+  2. animated avatars with image optimization increases execution time and function size due to additional package causing timeouts.
+  3. serverless payload limit is capped at 5mb, animated avatar and frames enabled altogether can have a paylize size of over 5-7mb.
 
 2. **Cold Boot and Github CDN timeouts**
 - Cold boots may cause image loading or rendering timeouts through github's cdn proxy which has a time limit on serving content from the origin. Subsequent requests might return a stale response while revalidating the cache to serve the most recent content. 
@@ -123,8 +125,8 @@ This project or its author are not affiliated, associated, authorized, endorsed 
 Open-sourcing projects are great with all the effort and time I dedicate. However there are some ways you can show your support to me:
 
 - Giving a star or sharing this project to gamer devs out there.
-- Pr's are welcome and highly appreciated if you think you can make this project better.
-- Donations are welcome:
+- Through pull requests, if you think you can make essential changes.
+- Donations are welcome and appreciated:
 <br/>
 <a href="https://www.paypal.com/paypalme/ameliaOrbeta" target=_blank>
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="32%" />
