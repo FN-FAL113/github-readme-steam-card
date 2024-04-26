@@ -3,13 +3,6 @@ import { Request, Response } from "express";
 import { StatusCodes } from 'http-status-codes';
 import { RequestErrorData } from "../types/error";
 
-/**
- * 
- * @param err error object
- * @param req express request object
- * @param res express response object
- * @param next express middleware function
- */
 const errorHandler = async (err: any, req: Request, res: Response): Promise<void> => {
     let customError: RequestErrorData = {
         message: 'Something went wrong, please try again later',
@@ -43,7 +36,14 @@ const errorHandler = async (err: any, req: Request, res: Response): Promise<void
             </g>  
 
             <style type="text/css">
-                text { font-family: Arial, Helvetica, Verdana, sans-serif; }
+                svg {
+                    border-radius: 8px;
+                }
+
+                text { 
+                    font-family: Arial, Helvetica, Verdana, sans-serif; 
+                    text-shadow: 1px 2px 6px black;
+                }
             </style>
         </svg>
     `

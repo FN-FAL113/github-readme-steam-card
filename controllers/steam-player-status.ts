@@ -273,7 +273,7 @@ async function initSvg(svgData: SvgData, showRecentGameBg: boolean, showInGameBg
 
                 text { 
                     font-family: Arial, Helvetica, Verdana, sans-serif; 
-                    text-shadow: 1px 2px 4px black;
+                    text-shadow: 1px 2px 6px black;
                 }
             </style>
         </svg> 

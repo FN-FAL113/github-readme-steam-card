@@ -1,7 +1,7 @@
 {
-  "name": "github-readme-steam-status",
+  "name": "github-readme-steam-card",
   "version": "1.0.0",
-  "description": "A dynamically generated steam status for your github readme",
+  "description": "A dynamically generated steam card for your github readme",
   "main": "index.js",
   "scripts": {
     "build": "del dist /q | npx tsc && xcopy public\\* dist\\public\\",
@@ -16,13 +16,13 @@
     "steam-card",
     "card-generator"
   ],
-  "homepage": "https://github.com/FN-FAL113/github-readme-steam-status",
+  "homepage": "https://github.com/FN-FAL113/github-readme-steam-card",
   "bugs": {
-    "url": "https://github.com/FN-FAL113/github-readme-steam-status/issues"
+    "url": "https://github.com/FN-FAL113/github-readme-steam-card/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/FN-FAL113/github-readme-steam-status.git"
+    "url": "https://github.com/FN-FAL113/github-readme-steam-card.git"
   },
   "author": "FN-FAL113",
   "license": "GPL-3.0 license",
