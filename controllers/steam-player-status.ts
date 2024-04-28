@@ -142,7 +142,7 @@ async function initSvg(svgData: SvgData, showRecentGameBg: boolean, showInGameBg
         gameBgMetadata = [await getUrlMediaEncoded(setAndGetGameBgUrl(svgData.recentGame!.appid), 'base64'), '350', '68', '128px', '128px']
     }  else {
         // fallback to steam logo
-        gameBgMetadata = [await getBase64LocalMedia(join('public', 'Steam-Logo-Transparent.png')), '414', '100', '64px', '64px']
+        gameBgMetadata = [await getBase64LocalMedia(join('dist', 'public', 'Steam-Logo-Transparent.png')), '414', '100', '64px', '64px']
     } 
     
     // profile background
@@ -161,6 +161,8 @@ async function initSvg(svgData: SvgData, showRecentGameBg: boolean, showInGameBg
 
         avatarFrameBase64 = await getUrlMediaEncoded(setAndGetPublicImageUrl(url), 'base64')
     }
+
+    console.log(gameBgMetadata[0])
     
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">

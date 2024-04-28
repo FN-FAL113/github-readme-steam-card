@@ -133,7 +133,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
         }
         else {
             // fallback to steam logo
-            gameBgMetadata = [yield getBase64LocalMedia((0, path_1.join)('public', 'Steam-Logo-Transparent.png')), '414', '100', '64px', '64px'];
+            gameBgMetadata = [yield getBase64LocalMedia((0, path_1.join)('dist', 'public', 'Steam-Logo-Transparent.png')), '414', '100', '64px', '64px'];
         }
         // profile background
         let profileBgBase64;
@@ -147,6 +147,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
             const url = animated_avatar == "true" ? svgData.avatarFrameData.image_large : svgData.avatarFrameData.image_small;
             avatarFrameBase64 = yield getUrlMediaEncoded(setAndGetPublicImageUrl(url), 'base64');
         }
+        console.log(gameBgMetadata[0]);
         return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
             <g>
@@ -254,7 +255,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
 
                 text { 
                     font-family: Arial, Helvetica, Verdana, sans-serif; 
-                    text-shadow: 1px 2px 4px black;
+                    text-shadow: 1px 2px 6px black;
                 }
             </style>
         </svg> 

@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
-const helmet = require('helmet');
 const app = (0, express_1.default)();
+const helmet = require('helmet');
 dotenv_1.default.config();
 // router
 const steam_player_status_1 = __importDefault(require("./routes/steam-player-status"));
@@ -16,7 +16,7 @@ const not_found_1 = __importDefault(require("./middleware/not-found"));
 const error_handler_1 = __importDefault(require("./middleware/error-handler"));
 app.set('trust proxy', 1);
 app.use(express_1.default.json());
-app.use(express_1.default.static('public'));
+app.use(express_1.default.static('dist/public'));
 app.use((0, cors_1.default)());
 app.use(helmet.contentSecurityPolicy({
     useDefaults: true,
