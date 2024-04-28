@@ -161,8 +161,6 @@ async function initSvg(svgData: SvgData, showRecentGameBg: boolean, showInGameBg
 
         avatarFrameBase64 = await getUrlMediaEncoded(setAndGetPublicImageUrl(url), 'base64')
     }
-
-    console.log(gameBgMetadata[0])
     
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">

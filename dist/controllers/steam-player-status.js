@@ -147,7 +147,6 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
             const url = animated_avatar == "true" ? svgData.avatarFrameData.image_large : svgData.avatarFrameData.image_small;
             avatarFrameBase64 = yield getUrlMediaEncoded(setAndGetPublicImageUrl(url), 'base64');
         }
-        console.log(gameBgMetadata[0]);
         return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
             <g>
