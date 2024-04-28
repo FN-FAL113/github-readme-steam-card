@@ -10,13 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_codes_1 = require("http-status-codes");
-/**
- *
- * @param err error object
- * @param req express request object
- * @param res express response object
- * @param next express middleware function
- */
 const errorHandler = (err, req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let customError = {
         message: 'Something went wrong, please try again later',
@@ -50,7 +43,14 @@ const errorHandler = (err, req, res) => __awaiter(void 0, void 0, void 0, functi
             </g>  
 
             <style type="text/css">
-                text { font-family: Arial, Helvetica, Verdana, sans-serif; }
+                svg {
+                    border-radius: 8px;
+                }
+
+                text { 
+                    font-family: Arial, Helvetica, Verdana, sans-serif; 
+                    text-shadow: 1px 2px 6px black;
+                }
             </style>
         </svg>
     `;

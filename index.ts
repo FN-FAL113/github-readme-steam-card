@@ -18,7 +18,7 @@ import errorHandler from './middleware/error-handler';
 app.set('trust proxy', 1)
 
 app.use(express.json())
-app.use(express.static('public'))
+app.use(express.static('dist/public'))
 app.use(cors())
 app.use(
     helmet.contentSecurityPolicy({
