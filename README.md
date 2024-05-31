@@ -111,13 +111,13 @@ Create an account on vercel if you don't have yet.
 - Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time. The dillemmas associated with enabling both animated avatar and frames:
   1. animated avatars without image optimization reaches payload limit for functions.
   2. animated avatars with image optimization increases execution time and function size due to additional package causing timeouts.
-  3. serverless payload limit is capped at 5mb, animated avatar and frames enabled altogether can have a paylize size of over 5-7mb.
+  3. serverless payload limit is capped at 5mb, animated avatar and frames enabled altogether can have a payload size of over 5-7mb.
 
 2. **Cold Boot and Github CDN timeouts**
 - Cold boots may cause image loading or rendering timeouts through github's cdn proxy which has a time limit on serving content from the origin. Subsequent requests might return a stale response while revalidating the cache to serve the most recent content.
 
 3. **Recently played game not showing**
-- To be able to use this feature, an <a href="#deploy-your-own-vercel-instance">instance<a/> of the project through vercel with your steam api key must be created by the user. 
+- To be able to use this feature, an <a href="#deploy-your-own-vercel-instance">instance<a/> of the project through vercel with your steam api key must be created to access user recently played games. 
 
 ### Disclaimer
 This project or its author are not affiliated, associated, authorized, endorsed by steam, its affiliates or subsidiaries. Images, names and other form of trademark are registered to their respective owners.
