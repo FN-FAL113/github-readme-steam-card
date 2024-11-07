@@ -128,8 +128,8 @@ Open-sourcing projects are great with all the effort and time I dedicate. Howeve
 
 - Giving a star or sharing this project to gamer devs out there.
 - Through pull requests, if you think you can make essential changes.
-- Donations are welcome and appreciated:
+- Donations are welcome but not required appreciated:
 <br/>
-<a href="https://www.paypal.com/paypalme/ameliaOrbeta" target=_blank>
+<a href="https://www.paypal.com/paypalme/fnfal113" target=_blank>
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="32%" />
 </a>
