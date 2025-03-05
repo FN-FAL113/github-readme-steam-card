@@ -180,7 +180,7 @@ function initSvg(svgData, showRecentGameBg, showInGameBg, animated_avatar) {
                             height="${gameBgMetadata[4]}"
                         />
                         <text x="160" y="130" font-size="12" fill="#a3cf06" class="game-header-status">In-Game</text>
-                        <text x="160" y="150" font-size="16" fill="#a3cf06">${inGameName}</text>
+                        <text x="160" y="150" font-size="14" fill="#a3cf06">${inGameName}</text>
                     ` :
             recentGameName ?
                 `
