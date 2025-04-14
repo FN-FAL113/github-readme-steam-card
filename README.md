@@ -96,16 +96,6 @@ You may combine these options together
 https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true&show_recent_game_bg=false
 ```
 
-## Deploy your own Vercel instance
-
-Generate your steam api key by going to [Steam Web API Docs](https://steamcommunity.com/dev) and supply the environment variable ```STEAM_API_KEY``` with your own.
-
-**Fork** this project and deploy it to your own vercel instance or click the deploy button below which does most of the stuffs for you.
-
-Create an account on vercel if you don't have yet.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
-
 ### FAQ
 1. **Enable animated avatar and frame at the same time**
 - Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time. The dillemmas associated with enabling both animated avatar and frames:
@@ -119,6 +109,16 @@ Create an account on vercel if you don't have yet.
 3. **Recently played game not showing**
 - To be able to use this feature, an <a href="#deploy-your-own-vercel-instance">instance<a/> of the project through vercel with your steam api key must be created to access user recently played games. 
 
+## Deploy your own Vercel instance
+
+Create an account on vercel if you don't have yet.
+
+Generate your steam api key by going to [Steam Web API Docs](https://steamcommunity.com/dev) and supply the environment variable ```STEAM_API_KEY``` with your own.
+
+**Fork** this project and deploy it to your own vercel instance or click the deploy button below which does most of the stuffs for you.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
+
 ### Disclaimer
 This project or its author are not affiliated, associated, authorized, endorsed by steam, its affiliates or subsidiaries. Images, names and other form of trademark are registered to their respective owners.
 
@@ -128,7 +128,7 @@ Open-sourcing projects are great with all the effort and time I dedicate. Howeve
 
 - Giving a star or sharing this project to gamer devs out there.
 - Through pull requests, if you think you can make essential changes.
-- Donations are welcome but not required appreciated:
+- Donations are welcome but not required:
 <br/>
 <a href="https://www.paypal.com/paypalme/fnfal113" target=_blank>
   <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="32%" />
