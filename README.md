@@ -28,7 +28,7 @@
     <img src="https://github-readme-steam-card.vercel.app/status/?steamid=76561198085145110&animated_avatar=true"/>
 </p>
 
-## Usage
+## :information_source: Usage
 
 Add the following markdown to your github readme
 
@@ -43,7 +43,7 @@ or through markdown
 ![GRSS](https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64 here>)
 ```
 
-## Available Options
+## :gear: Available Options
 
 -   `show_in_game_bg` - display in game banner as a partial background, fallback to steam logo if set to false.
 -   `show_recent_game_bg` - display recent game banner as partial background, fallback to steam logo if set to false.
@@ -96,7 +96,7 @@ You may combine these options together
 https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show_in_game_bg=true&show_recent_game_bg=false
 ```
 
-### FAQ
+### :interrobang: FAQ
 1. **Enable animated avatar and frame at the same time**
 - Despite previously adding support even with proper image optimizations, the api is hitting a timeout against github's cdn proxy. This is due to the imposed time window by github for rendering images inside readme files which would be ~4s. After tireless testing, I had to further optimize and trim down the app in order to lessen api execution time. The dillemmas associated with enabling both animated avatar and frames:
   1. animated avatars without image optimization reaches payload limit for functions.
@@ -109,7 +109,7 @@ https://github-readme-steam-card.vercel.app/status/?steamid=<SteamID64here>&show
 3. **Recently played game not showing**
 - To be able to use this feature, an <a href="#deploy-your-own-vercel-instance">instance<a/> of the project through vercel with your steam api key must be created to access user recently played games. 
 
-## Deploy your own Vercel instance
+## :small_red_triangle: Deploy your own Vercel instance
 
 Create an account on vercel if you don't have yet.
 
@@ -119,7 +119,7 @@ Generate your steam api key by going to [Steam Web API Docs](https://steamcommun
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFN-FAL113%2Fgithub-readme-steam-status&env=STEAM_API_KEY)
 
-### Disclaimer
+### :warning: Disclaimer
 This project or its author are not affiliated, associated, authorized, endorsed by steam, its affiliates or subsidiaries. Images, names and other form of trademark are registered to their respective owners.
 
 ## :sparkling_heart: Support the project/dev
