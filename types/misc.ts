@@ -16,3 +16,8 @@ export interface SvgData {
     avatarFrameData: AvatarFrameData|{}
     avatarBase64: string|ArrayBuffer|undefined
 }
+
+export interface TruncateConfig {
+  maxLength: number;
+  truncateAt: number;
+}

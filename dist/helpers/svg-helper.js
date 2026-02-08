@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapSvgGameBgMetadata = exports.buildSvg = void 0;
+exports.truncateText = exports.mapSvgGameBgMetadata = exports.buildSvg = void 0;
 function buildSvg(svgData, svgGameBgMetadata, profileBgBase64, avatarFrameBase64, inGameName, recentGameName, username, status, statusColor) {
     return `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="200">
@@ -114,13 +114,21 @@ function buildSvg(svgData, svgGameBgMetadata, profileBgBase64, avatarFrameBase64
    `;
 }
 exports.buildSvg = buildSvg;
-function mapSvgGameBgMetadata(encodedMedia, positionX, positionY, width, height) {
+function mapSvgGameBgMetadata(encodedMedia, dimensions) {
     return {
         "encodedMedia": encodedMedia,
-        "positionX": positionX,
-        "positionY": positionY,
-        "width": width,
-        "height": height,
+        "positionX": dimensions.x,
+        "positionY": dimensions.y,
+        "width": dimensions.width,
+        "height": dimensions.height,
     };
 }
 exports.mapSvgGameBgMetadata = mapSvgGameBgMetadata;
+function truncateText(text, config) {
+    if (!text)
+        return '';
+    return text.length > config.maxLength
+        ? `${text.slice(0, config.truncateAt)}...`
+        : text;
+}
+exports.truncateText = truncateText;

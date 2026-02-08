@@ -1,4 +1,5 @@
-import { SvgData, SvgGameBackgroundMetadata } from "../types/misc";
+import { SvgData, SvgGameBackgroundMetadata, TruncateConfig } from "../types/misc";
+import { GAME_BG_DIMENSIONS_TYPE, FALLBACK_BG_DIMENSIONS_TYPE } from "../types/contants";
 
 export function buildSvg(
     svgData: SvgData,
@@ -132,17 +133,25 @@ export function buildSvg(
 
 export function mapSvgGameBgMetadata(
     encodedMedia: string|ArrayBuffer|undefined,
-    positionX: string,
-    positionY: string,
-    width: string,
-    height: string
+    dimensions: GAME_BG_DIMENSIONS_TYPE | FALLBACK_BG_DIMENSIONS_TYPE
 ): SvgGameBackgroundMetadata
 {
     return {
         "encodedMedia": encodedMedia,
-        "positionX": positionX,
-        "positionY": positionY,
-        "width": width,
-        "height": height,
+        "positionX": dimensions.x,
+        "positionY": dimensions.y,
+        "width": dimensions.width,
+        "height": dimensions.height,
     }
+}
+
+export function truncateText(
+    text: string | null | undefined,
+    config: TruncateConfig
+): string {
+    if (!text) return '';
+
+    return text.length > config.maxLength
+    ? `${text.slice(0, config.truncateAt)}...`
+    : text;
 }

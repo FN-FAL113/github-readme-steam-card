@@ -1,5 +1,3 @@
-
-import { join } from 'path';
 import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import { RequestQueryParams } from '../types/request';
@@ -12,10 +10,11 @@ import {
     SteamPlayerSummariesData, 
     SteamPlayerEquippedProfileItemsData 
 } from '../types/steam';
-import { SvgData, SvgGameBackgroundMetadata } from '../types/misc';
-import { getEncodedWebMedia, getEncodedLocalMedia } from '../helpers/media-helper';
-import { getPublicImageApiUrl, getGameBackgroundApiUrlV2 } from '../helpers/api-url-helper';
-import { buildSvg, mapSvgGameBgMetadata } from '../helpers/svg-helper';
+import { SvgData } from '../types/misc';
+import { getEncodedWebMedia, fetchAvatarFrame, fetchProfileBackground, resolveGameBackground } from '../helpers/media-helper';
+import { getPublicImageApiUrl } from '../helpers/api-url-helper';
+import { buildSvg, truncateText } from '../helpers/svg-helper';
+import { TEXT_LIMITS } from '../types/contants';
 
 const NotFoundError = require('../errors/not-found')
 
@@ -34,50 +33,54 @@ const getStatus = async (req: Request, res: Response, next: NextFunction): Promi
         } 
     } = req as RequestQueryParams
     
-    // conditions for displaying recent or in game background
-    const showRecentGameBg: boolean = show_recent_game_bg != undefined ? show_recent_game_bg === 'true' : true 
-    const showInGameBg: boolean = show_in_game_bg != undefined ? show_in_game_bg === 'true' : true
+    // condition for displaying recent or in-game image
+    const showRecentGameBg: boolean = show_recent_game_bg != null ? Boolean(show_recent_game_bg) : true;  
+    const showInGameBg: boolean = show_in_game_bg != null ? Boolean(show_in_game_bg) : true; 
     
     // steam api user data url
     const userUrl: string = `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamid}`
     
     // steam api user game data url
-    const ownedGamesUrl: string = `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true&include_played_free_games=true`
+    const ownedGamesUrl: string = 
+        `http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}&include_appinfo=true&include_played_free_games=true`
     
     // steam api user equipped profile items url
     const equippedProfileItemsUrl: string = `https://api.steampowered.com/IPlayerService/GetProfileItemsEquipped/v1/?key=${process.env.STEAM_API_KEY}&steamid=${steamid}`
 
     try {
-        const getUserData: SteamPlayerSummariesData = await axios.get(userUrl)
+        const [getUserData, getOwnedGamesData, equippedProfileItems]: [
+                SteamPlayerSummariesData, SteamPlayerOwnedGamesData, SteamPlayerEquippedProfileItemsData
+            ] = await Promise.all([
+                await axios.get(userUrl),
+                await axios.get(ownedGamesUrl),
+                await axios.get(equippedProfileItemsUrl)
+            ]);
 
-        const userData: PlayerSummaryData = getUserData.data.response.players[0]
-
-        if(userData) {
-            const getOwnedGamesData: SteamPlayerOwnedGamesData = await axios.get(ownedGamesUrl)
+        if (getUserData.data.response.players[0]) {
+            const userData: PlayerSummaryData = getUserData.data.response.players[0]
 
             const ownedGamesData: PlayerOwnedGameData[] = getOwnedGamesData.data.response.games
-
-            const equippedProfileItems: SteamPlayerEquippedProfileItemsData = await axios.get(equippedProfileItemsUrl)
 
             const profileBgData: ProfileBackgroundData|{} = equippedProfileItems.data.response.profile_background
 
             const avatarFrameData: AvatarFrameData|{} = equippedProfileItems.data.response.avatar_frame
 
-            let user_status: { status: string, statusColor: string }|null = null
+            let user_status: { status: string, statusColor: string }|null = { status: 'Offline', statusColor: '#57cbde' }
             
-            // check user status to initialize user status data
+            // initialize user status data
             if(userData.personastate === 1) {
-                user_status = { status: 'Online', statusColor: '#57cbde' }
+                user_status['status'] = 'Online'
             } else if (userData.personastate === 2) {
-                user_status = { status: 'Busy', statusColor: '#57cbde' }
+                user_status['status'] = 'Busy'
             } else if (userData.personastate === 3) {
-                user_status = { status: 'Away', statusColor: '#57cbde' }
+                user_status['status'] = 'Away'
             } else {
-                user_status = { status: 'Offline', statusColor: '#898989' }
+                // default to offline with gray font color
+                user_status['statusColor'] = '#898989'
             }        
        
             const recentGame: PlayerOwnedGameData|null = ownedGamesData ? getRecentlyPlayedGameData(ownedGamesData) : null  
-            const avatarBase64: string|ArrayBuffer|undefined = await getAvatar(userData, equippedProfileItems, animated_avatar)
+            const avatarBase64: string|ArrayBuffer|undefined = await fetchAvatar(userData, equippedProfileItems, animated_avatar)
             
             const svgData: SvgData = {
                 userData,
@@ -103,7 +106,7 @@ const getStatus = async (req: Request, res: Response, next: NextFunction): Promi
 }
 
 // check if user wants to use animated avatar if exists else fallback to non-animated avatar
-async function getAvatar(
+async function fetchAvatar(
     userData: PlayerSummaryData, 
     equippedProfileItems: SteamPlayerEquippedProfileItemsData, 
     animated_avatar: string|undefined
@@ -121,16 +124,16 @@ async function getAvatar(
 
 function getRecentlyPlayedGameData(gamesArr: PlayerOwnedGameData[]): PlayerOwnedGameData|null 
 {
-    // validate if user owned game playtime data can be accessed
+    // validate if playtime data can be accessed
     if (! gamesArr[0]?.rtime_last_played && ! gamesArr[1]?.rtime_last_played) {
         return null
     }
 
     let recentGameDataObj: PlayerOwnedGameData|null = null
 
-    // get user recent game played by comparing time last played
+    // get recent game played by comparing time last played
     for (const gameDataObj of gamesArr) {
-        if (! recentGameDataObj) { // initialize recent game data arr with first owned game data object
+        if (! recentGameDataObj) {
             recentGameDataObj = gameDataObj
         } else if (gameDataObj.rtime_last_played! > recentGameDataObj.rtime_last_played!) {
             recentGameDataObj = gameDataObj
@@ -147,83 +150,44 @@ async function initSvg(
     animated_avatar: string|undefined
 ): Promise<string> 
 {
-    // user status (name and font color)
-    const status: string = svgData.user_status.status
+    const { user_status, userData, recentGame, profileBgData, avatarFrameData } = svgData;
 
-    const statusColor: string = svgData.user_status.statusColor
+    const status = user_status.status;
+    const statusColor = user_status.statusColor;
     
-    const username: string = svgData.userData.personaname.length > 20 ? 
-        svgData.userData.personaname.slice(0, 16) + '...' : svgData.userData.personaname
-    
-    const inGameName: string|null = svgData.userData?.gameextrainfo ? 
-            svgData.userData?.gameextrainfo.length > 32 ? 
-                svgData.userData?.gameextrainfo.slice(0, 25) + '...' 
-            :   
-                svgData.userData?.gameextrainfo 
-        : null
-    
-    const recentGameName: string|null = svgData?.recentGame ? 
-            svgData.recentGame.name.length > 32 ? 
-                svgData.recentGame.name.slice(0, 26) + '...' 
-            : 
-                svgData.recentGame.name 
-        : null
-    
-    // in-game or recent game background, it fallbacks to steam logo
-    // seems to be that other games are cached on fastly that requires the hashed resource endpoint which we can't access through available steam game api
-    // eg. `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3478050/3b653f6352ba1e603205721e20ab370ed4caf1de/header.jpg?t=1762397148`
-    // if the game bg cannot be fetched from steam cloudflare cdn using game id then it will display a malformed image  
-    // but I just found an alternative way after doing some exploration where game header image can be accessed easily
-    // eg. https://store.steampowered.com/api/appdetails?appids=3478050&filters=basic
-    let svgGameBgMetadata: SvgGameBackgroundMetadata;
+    const username = truncateText(userData.personaname, {
+        maxLength: TEXT_LIMITS.USERNAME,
+        truncateAt: TEXT_LIMITS.USERNAME_TRUNCATE,
+    });
 
-    if (inGameName && showInGameBg) {
-        // if in game data is present and showIngameBg param is true then display game background       
-        svgGameBgMetadata = mapSvgGameBgMetadata(
-            await getEncodedWebMedia(
-                await getGameBackgroundApiUrlV2(svgData.userData.gameid as string),
-                'base64'
-            ),
-            '350',
-            '68',
-            '128px',
-            '128px'
-        )
-    } else if (! inGameName && recentGameName && showRecentGameBg) {
-        // if not in game, recent game data is present and showRecentgameBg param is true then display game background
-        svgGameBgMetadata = mapSvgGameBgMetadata(
-            await getEncodedWebMedia(
-                await getGameBackgroundApiUrlV2(svgData.recentGame!.appid),
-                'base64'
-            ),
-            '350',
-            '68',
-            '128px',
-            '128px'
-        )
-    }  else {
-        // fallback to steam logo
-        svgGameBgMetadata = mapSvgGameBgMetadata(await getEncodedLocalMedia(join('dist', 'public', 'Steam-Logo-Transparent.png')), '414', '100', '64px', '64px')
-    } 
-    
-    // profile equipped background
-    let profileBgBase64: string|ArrayBuffer|undefined;
+    const inGameName = truncateText(userData.gameextrainfo, {
+        maxLength: TEXT_LIMITS.GAME_NAME,
+        truncateAt: TEXT_LIMITS.IN_GAME_TRUNCATE,
+    });
 
-    if ('image_large' in svgData.profileBgData) {
-        profileBgBase64 = await getEncodedWebMedia(getPublicImageApiUrl(svgData.profileBgData.image_large), 'base64')
-    }
+    const recentGameName = truncateText(recentGame?.name, {
+        maxLength: TEXT_LIMITS.GAME_NAME,
+        truncateAt: TEXT_LIMITS.RECENT_GAME_TRUNCATE,
+    });
     
-    // avatar frame (static or animated)
-    // optimizing Animated PNG (APNG) not yet supported: https://github.com/lovell/sharp/issues/2375
-    let avatarFrameBase64: string|ArrayBuffer|undefined;
-
-    if ('image_small' in svgData.avatarFrameData) {
-        const url = animated_avatar == "true" ? svgData.avatarFrameData.image_large : svgData.avatarFrameData.image_small
-
-        avatarFrameBase64 = await getEncodedWebMedia(getPublicImageApiUrl(url), 'base64')
-    }
+    // fetch all assets in parallel for better performance
+    const [svgGameBgMetadata, profileBgBase64, avatarFrameBase64] = await Promise.all([
+        resolveGameBackground(svgData, showRecentGameBg, showInGameBg, !!inGameName),
+        fetchProfileBackground(profileBgData),
+        fetchAvatarFrame(avatarFrameData, animated_avatar === 'true'),
+    ]);
     
-    return buildSvg(svgData, svgGameBgMetadata, profileBgBase64, avatarFrameBase64, inGameName, recentGameName, username, status, statusColor)
+    return buildSvg(
+        svgData,
+        svgGameBgMetadata,
+        profileBgBase64,
+        avatarFrameBase64,
+        inGameName,
+        recentGameName,
+        username,
+        status,
+        statusColor
+    )
 }
 
 export {
