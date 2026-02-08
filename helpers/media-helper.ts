@@ -5,8 +5,9 @@ import { getGameBackgroundApiUrlV2, getPublicImageApiUrl } from './api-url-helpe
 import { mapSvgGameBgMetadata } from './svg-helper';
 import { SvgGameBackgroundMetadata, SvgData } from '../types/misc';
 import { GAME_BG_DIMENSIONS, FALLBACK_BG_DIMENSIONS } from '../types/contants';
+import { PlayerSummaryData, SteamPlayerEquippedProfileItemsData } from '../types/steam';
 
-export async function getEncodedWebMedia(url: string, encoding: string): Promise<string|ArrayBuffer|undefined>
+export async function fetchEncodedWebMedia(url: string, encoding: string): Promise<string|ArrayBuffer|undefined>
 {
     try {
         const image = await axios.get(url, {
@@ -20,7 +21,7 @@ export async function getEncodedWebMedia(url: string, encoding: string): Promise
     }
 }
 
-export async function getEncodedLocalMedia(path: string): Promise<string|undefined> 
+export async function fetchEncodedLocalMedia(path: string): Promise<string|undefined> 
 {
     try {
         return await readFile(path, { encoding: 'base64' })
@@ -35,7 +36,7 @@ export async function fetchGameBackground(
 {
     const backgroundUrl = await getGameBackgroundApiUrlV2(gameId);
 
-    return getEncodedWebMedia(backgroundUrl, 'base64');
+    return fetchEncodedWebMedia(backgroundUrl, 'base64');
 }
 
 export async function resolveGameBackground(
@@ -62,7 +63,7 @@ export async function resolveGameBackground(
     }
 
     // Fallback: Steam logo
-    const fallbackBg = await getEncodedLocalMedia(join('dist', 'public', 'Steam-Logo-Transparent.png'));
+    const fallbackBg = await fetchEncodedLocalMedia(join('dist', 'public', 'Steam-Logo-Transparent.png'));
     return mapSvgGameBgMetadata(fallbackBg, FALLBACK_BG_DIMENSIONS);
 }
 
@@ -75,7 +76,7 @@ export async function fetchProfileBackground(
         return undefined;
     }
 
-    return getEncodedWebMedia(
+    return fetchEncodedWebMedia(
         getPublicImageApiUrl(profileBgData.image_large),
         'base64'
     );
@@ -94,8 +95,25 @@ export async function fetchAvatarFrame(
     ? avatarFrameData.image_large
     : avatarFrameData.image_small;
 
-    return getEncodedWebMedia(
+    return fetchEncodedWebMedia(
         getPublicImageApiUrl(imageUrl),
         'base64'
     );
+}
+
+// check if user wants to use animated avatar if exists else fallback to non-animated avatar
+export async function fetchAvatar(
+    userData: PlayerSummaryData, 
+    equippedProfileItems: SteamPlayerEquippedProfileItemsData, 
+    animated_avatar: string|undefined
+): Promise<string|ArrayBuffer|undefined> 
+{
+    if (animated_avatar == "true" && 'image_small' in equippedProfileItems.data.response.animated_avatar) {
+        return await fetchEncodedWebMedia(
+            getPublicImageApiUrl(equippedProfileItems.data.response.animated_avatar.image_small),
+            'base64'
+        )
+    }
+
+    return await fetchEncodedWebMedia(userData.avatarfull, 'base64')
 }

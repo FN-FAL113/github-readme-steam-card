@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStatus = void 0;
 const axios_1 = __importDefault(require("axios"));
 const media_helper_1 = require("../helpers/media-helper");
-const api_url_helper_1 = require("../helpers/api-url-helper");
 const svg_helper_1 = require("../helpers/svg-helper");
 const contants_1 = require("../types/contants");
 const NotFoundError = require('../errors/not-found');
@@ -61,7 +60,7 @@ const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 user_status['statusColor'] = '#898989';
             }
             const recentGame = ownedGamesData ? getRecentlyPlayedGameData(ownedGamesData) : null;
-            const avatarBase64 = yield fetchAvatar(userData, equippedProfileItems, animated_avatar);
+            const avatarBase64 = yield (0, media_helper_1.fetchAvatar)(userData, equippedProfileItems, animated_avatar);
             const svgData = {
                 userData,
                 user_status,
@@ -85,15 +84,6 @@ const getStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getStatus = getStatus;
-// check if user wants to use animated avatar if exists else fallback to non-animated avatar
-function fetchAvatar(userData, equippedProfileItems, animated_avatar) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (animated_avatar == "true" && 'image_small' in equippedProfileItems.data.response.animated_avatar) {
-            return yield (0, media_helper_1.getEncodedWebMedia)((0, api_url_helper_1.getPublicImageApiUrl)(equippedProfileItems.data.response.animated_avatar.image_small), 'base64');
-        }
-        return yield (0, media_helper_1.getEncodedWebMedia)(userData.avatarfull, 'base64');
-    });
-}
 function getRecentlyPlayedGameData(gamesArr) {
     var _a, _b;
     // validate if playtime data can be accessed

@@ -11,7 +11,7 @@ import {
     SteamPlayerEquippedProfileItemsData 
 } from '../types/steam';
 import { SvgData } from '../types/misc';
-import { getEncodedWebMedia, fetchAvatarFrame, fetchProfileBackground, resolveGameBackground } from '../helpers/media-helper';
+import { fetchEncodedWebMedia, fetchAvatarFrame, fetchProfileBackground, resolveGameBackground, fetchAvatar } from '../helpers/media-helper';
 import { getPublicImageApiUrl } from '../helpers/api-url-helper';
 import { buildSvg, truncateText } from '../helpers/svg-helper';
 import { TEXT_LIMITS } from '../types/contants';
@@ -103,23 +103,6 @@ const getStatus = async (req: Request, res: Response, next: NextFunction): Promi
     } catch (error) {
         next(error)
     }
-}
-
-// check if user wants to use animated avatar if exists else fallback to non-animated avatar
-async function fetchAvatar(
-    userData: PlayerSummaryData, 
-    equippedProfileItems: SteamPlayerEquippedProfileItemsData, 
-    animated_avatar: string|undefined
-): Promise<string|ArrayBuffer|undefined> 
-{
-    if (animated_avatar == "true" && 'image_small' in equippedProfileItems.data.response.animated_avatar) {
-        return await getEncodedWebMedia(
-            getPublicImageApiUrl(equippedProfileItems.data.response.animated_avatar.image_small),
-            'base64'
-        )
-    }
-
-    return await getEncodedWebMedia(userData.avatarfull, 'base64')
 }
 
 function getRecentlyPlayedGameData(gamesArr: PlayerOwnedGameData[]): PlayerOwnedGameData|null 
