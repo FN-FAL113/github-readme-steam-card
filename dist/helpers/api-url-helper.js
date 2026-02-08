@@ -19,7 +19,7 @@ function getPublicImageApiUrl(path) {
 }
 exports.getPublicImageApiUrl = getPublicImageApiUrl;
 function getGameBackgroundApiUrl(gameId) {
-    // not all header images are cached on cloudflare, use another function below instead
+    // not all header images are cached on cloudflare cdn, use function below instead
     return `https://cdn.cloudflare.steamstatic.com/steam/apps/${gameId}/header.jpg`;
 }
 exports.getGameBackgroundApiUrl = getGameBackgroundApiUrl;

@@ -7,11 +7,12 @@ export function getPublicImageApiUrl(path: string): string
 
 export function getGameBackgroundApiUrl(gameId: string|number): string
 {
-    // not all header images are cached on cloudflare, use another function below instead
+    // not all header images are cached on cloudflare cdn, use function below instead
     return `https://cdn.cloudflare.steamstatic.com/steam/apps/${gameId}/header.jpg`
 }
 
-export async function getGameBackgroundApiUrlV2(gameId: string|number) {
+export async function getGameBackgroundApiUrlV2(gameId: string|number) 
+{
     try {
         const appDetails = await axios.get(`https://store.steampowered.com/api/appdetails?appids=${gameId}&filters=basic`)
 
